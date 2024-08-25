@@ -11,11 +11,19 @@ difficulty_choices = (
     ("C2", "고급")
 )
 
+# 주제 테이블
+class Topic(models.Model):
+    main_topic = models.CharField("메인 주제", max_length=50)
+    sub_topic = models.CharField("서브 주제", max_length=50)
+
+    def __str__(self):
+        return f"{self.main_topic} > {self.sub_topic}"
+
 # 단어 테이블
 class Word(models.Model):
-    word = models.CharField("단어", max_length=100, unique=True)
+    word = models.CharField("단어", max_length=100)
     definition = models.TextField("정의", blank=True, null=True)
-    topic = models.CharField("주제", max_length=100, blank=True, null=True)
+    topic = models.ForeignKey(Topic, on_delete=models.SET_NULL, related_name="words", blank=True, null=True)
     difficulty = models.CharField("난이도", max_length=10, choices=difficulty_choices, blank=True, null=True)
 
     def __str__(self):
