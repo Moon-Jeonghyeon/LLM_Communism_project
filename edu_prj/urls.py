@@ -24,5 +24,5 @@ urlpatterns = [
     path("", views.main_page),
     path("admin/", admin.site.urls),
     path("users/", include("users.urls")),
-    path("get_words/", include("words.urls")),
+    path("words/", include("words.urls")),
 ]
