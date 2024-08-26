@@ -8,7 +8,7 @@ import time
 from words.models import Topic, Word, Sentence, Vocabulary, Quiz, Memo
 
 # Create your views here.
-def get_words():
+def get_words(request):
     # 보류: 바로 객체 생성하기.
     url = "https://www.oxfordlearnersdictionaries.com/topic/"
 
@@ -86,4 +86,58 @@ def get_words():
             print(f"뒤로가기 에러: {e}")
             continue
 
+    driver.quit()
+
+def update_word(request):
+    base_url = "https://en.dict.naver.com/#/search?"
+    driver = webdriver.Chrome()
+
+    # DB에서 단어를 가져오기 (정의가 없는 단어만)
+    words = Word.objects.filter(definition__isnull=True)
+
+    for word_obj in words:
+        word = word_obj.word
+
+        # 단어 정의 가져오기
+        driver.get(f"{base_url}range=word&query={word}")
+        time.sleep(2)
+
+        try:
+            origin_div = driver.find_element(By.CSS_SELECTOR, 'div.row')
+            mean_elements = origin_div.find_elements(By.CSS_SELECTOR, 'p.mean')
+            definition = '\n'.join([mean.text for mean in mean_elements])
+            
+            # 단어 정의 업데이트
+            word_obj.definition = definition
+            word_obj.save()
+            print(f"단어 뜻 저장 완료: {definition}")
+            
+        except Exception as e:
+            print(f"Error occurred: {e}")
+            continue
+
+        # 예문 페이지로 이동
+        driver.get(f"{base_url}range=example&query={word}")
+        time.sleep(2)
+
+        try:
+            label_check = driver.find_element(By.CSS_SELECTOR, "label.inp_label_check")
+            label_check.click()
+
+            sentence_text = driver.find_element(By.CSS_SELECTOR, 'div.origin').text
+            definition_text = driver.find_element(By.CSS_SELECTOR, 'div.translate').text
+            source_text = driver.find_element(By.CSS_SELECTOR, 'a.source').text
+
+            # 문장 객체 생성
+            Sentence.objects.create(
+                sentence=sentence_text,
+                definition=definition_text,
+                source=source_text,
+                word=word_obj
+            )
+
+        except Exception as e:
+            print(f"clicking label 에러: {e}")
+
+    # 브라우저 닫기
     driver.quit()
