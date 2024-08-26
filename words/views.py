@@ -8,7 +8,7 @@ import time
 from words.models import Topic, Word, Sentence, Vocabulary, Quiz, Memo
 
 # Create your views here.
-def get_words():
+def get_words(request):
     # 보류: 바로 객체 생성하기.
     url = "https://www.oxfordlearnersdictionaries.com/topic/"
 
