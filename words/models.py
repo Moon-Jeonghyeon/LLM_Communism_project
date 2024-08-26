@@ -29,8 +29,6 @@ class Word(models.Model):
     def __str__(self):
         return self.word
     
-    class Meta:
-        unique_together = ("word", "topic")
     
 # 문장 테이블
 class Sentence(models.Model):
