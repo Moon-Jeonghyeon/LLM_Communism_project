@@ -116,6 +116,18 @@ def update_word(request):
             print(f"Error occurred: {e}")
             continue
 
+    driver.quit()
+
+def get_sentences(request):
+    base_url = "https://en.dict.naver.com/#/search?"
+    driver = webdriver.Chrome()
+
+    # 이미 뜻이 있는 단어들만 해당
+    words = Word.objects.filter(definition__isnull=False)
+
+    for word_obj in words:
+        word = word_obj.word
+
         # 예문 페이지로 이동
         driver.get(f"{base_url}range=example&query={word}")
         time.sleep(2)
@@ -123,6 +135,8 @@ def update_word(request):
         try:
             label_check = driver.find_element(By.CSS_SELECTOR, "label.inp_label_check")
             label_check.click()
+
+            time.sleep(2)
 
             sentence_text = driver.find_element(By.CSS_SELECTOR, 'div.origin').text
             definition_text = driver.find_element(By.CSS_SELECTOR, 'div.translate').text
