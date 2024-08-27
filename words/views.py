@@ -6,6 +6,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 import time
 from words.models import Topic, Word, Sentence, Vocabulary, Quiz, Memo
+from random import sample
 
 # Create your views here.
 def get_words(request):
@@ -155,3 +156,99 @@ def get_sentences(request):
 
     # 브라우저 닫기
     driver.quit()
+
+def learn_words(request, topic_id):
+    # 주제에 해당하는 단어들 중 뜻이 있는 단어들
+    words = Word.objects.filter(topic__id=topic_id, definition__isnull=False)
+    # 그 중 예문이 있는 단어들
+    words_with_sentences = [word for word in words if word.sentences.exists()]
+
+    # 랜덤으로 10개 단어 선택
+    selected_words = sample(words_with_sentences, min(len(words_with_sentences), 10))
+
+    context = {
+        "selected_words": selected_words,
+    }
+
+    return render(request, "words/learn_words.html", context)
+
+def quiz(request):
+    # 사용자가 학습한 경우 학습한 단어들로만 문제를 내고, 사용자가 학습 없이 문제 풀기를 선택한 경우 단어장에 있는 단어와 랜덤 10개의 단어 중 무작위로 10개를 선택함
+
+    # POST 방식 요청 시
+    if request.method == "POST":
+        selected_words = request.POST.get("selected_words")
+
+        # 선택 단어들이 있다면
+        if selected_words:
+            # 이전 선택 단어들은 id가 쉼표로 구분되어 있으므로 , 를 기준으로 분리함
+            word_ids = selected_words.split(",")
+            
+            # word_ids 에 해당하는 단어 중 단어 뜻과 문장 해석이 있는 단어 객체 반환
+            words = Word.objects.filter(id__in=word_ids, definition__isnull=False, sentences_definition__isnull=False)
+
+        # 사용자가 단어를 학습하지 않은 경우   
+        else:
+            # 전체 단어 중 랜덤하게 10개 단어 선택
+            all_words = list(Word.objects.filter(definition__isnull=False, sentences__definition__isnull=False).order_by("?")[:10])
+            
+            # 사용자의 단어장에서 단어 객체 반환
+            vocab_words = list(Vocabulary.objects.filter(user=request.user).values_list("word", flat=True))
+
+            # 단어 뜻과 예문 해석이 있는 단어를 랜덤하게 10개 선택
+            vocab_words = Word.objects.filter(id__in=vocab_words, definition__isnull=False, sentences__definition__isnull=False).order_by("?")[:10]
+
+            # 두 리스트를 합치고, 중복 없이 10개의 단어를 랜덤하게 선택함
+            combined_words = list(set(all_words + list(vocab_words)))
+            words = combined_words[:10]
+
+    # GET 방식 요청 시(사용자가 바로 페이지에 접근한 경우) 동일한 로직 실행
+    else:
+        all_words = list(Word.objects.filter(definition__isnull=False, sentences__definition__isnull=False).order_by("?")[:10])
+        vocab_words = list(Vocabulary.objects.filter(user=request.user).values_list('word', flat=True))
+        vocab_words = Word.objects.filter(id__in=vocab_words, definition__isnull=False, sentences__definition__isnull=False).order_by("?")[:10]
+        combined_words = list(set(all_words + list(vocab_words)))
+        words = combined_words[:10]
+
+    return render(request, "words/quiz.html", {"words": words})
+
+def quiz_results(request):
+    # POST 방식 요청 시
+    if request.method == "POST":
+        results = []
+        correct_count = 0
+        # keys 중 answers_ 로 시작하는 키만 가져옴. quiz 템플릿의 answer_{{ word.id }} 에서 word 의 id를 가져오고 이 리스트 안에 포함된 단어 객체들을 반환함.
+        word_ids = [key.split("_")[1] for key in request.POST.keys() if key.startswith("answers_")]
+        words = Word.objects.filter(id__in=word_ids)
+
+        for word in words:
+            # 사용자가 입력한 정답
+            user_answer = request.POST.get(f"anwers_{ word.id }")
+
+            # 사용자 입력 답이 단어와 같으면 True
+            correct = user_answer.lower() == word.word.lower()
+
+            # 정답일 때
+            if correct:
+                correct_count += 1
+            
+            # 단어 객체, 정답 여부, 사용자 답안, 실제 답안을 딕셔너리로 묶어서 리스트에 추가함
+            results.append({
+                "word": word,
+                "correct": correct,
+                "user_answer": user_answer,
+                "correct_answer": word.word,
+                "definition": word.definition,
+            })
+
+            # 요청을 보낸 사용자의 단어장에 단어가 없는 경우 객체를 생성함
+            Vocabulary.objects.get_or_create(user=request.user, word=word)
+
+        # 퀴즈 결과, 맞춘 개수, 총 문제 수를 context로 전달함
+        context = {
+            "results": results,
+            "correct_count": correct_count,
+            "total_count": len(words),
+        }
+
+        return render(request, "words/quiz_results.html", context)
