@@ -2,6 +2,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render, redirect
 from users.forms import LoginForm, SignupForm
 from users.models import User
+from words.models import Memo
 
 # Create your views here.
 def login_view(request):
@@ -73,3 +74,24 @@ def signup(request):
 
     context = {"form": form}
     return render(request, "users/signup.html", context)
+
+def memo(request):
+    memos = Memo.objects.all()
+    context = { "memos" : memos }
+
+    if request.method == "POST": # method가 post일때
+
+        content = request.POST["content"]
+
+        post = Memo.objects.create(
+            content=content,
+            user=request.user,
+        )
+        post.save()
+        return redirect("/users/memo/")
+
+    else : # method가  post 가 아닐때
+        print("method get")
+
+    return render(request, "users/memo.html", context)
+

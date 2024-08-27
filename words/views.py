@@ -155,3 +155,23 @@ def get_sentences(request):
 
     # 브라우저 닫기
     driver.quit()
+
+
+def category(request):
+    main_topics = Topic.objects.values_list("main_topic", flat=True).distinct()
+
+    topic_data = []
+
+    for main in main_topics:
+        sub_topics = Topic.objects.filter(main_topic=main).values_list("sub_topic", flat=True).distinct()
+        sub_topics = list(sub_topics)
+        topic_data.append({
+            "main_topic": main,
+            "sub_topics": sub_topics,
+        })
+
+    return render(request, "words/category.html", {"topic_data": topic_data})
+    
+
+def voca(request):
+    return render(request, "words/voca.html")

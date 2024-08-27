@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>
+        {% for topic in topic_data %}
+            <h2>{{ topic.main_topic }}</h2>
+            {% for sub_topic in topic.sub_topics %}
+                <h5>{{ sub_topic }}</h5>
+            {% endfor %}
+        {% endfor %}
+        <!-- 카테고리 제목 및 소제목 표기 -->
+
+
+    </h1>
+</body>
+</html>
