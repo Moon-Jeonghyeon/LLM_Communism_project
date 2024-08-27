@@ -130,25 +130,32 @@ def get_sentences(request):
 
         # 예문 페이지로 이동
         driver.get(f"{base_url}range=example&query={word}")
-        time.sleep(2)
+        time.sleep(2)  # 페이지 로드 대기
 
         try:
             label_check = driver.find_element(By.CSS_SELECTOR, "label.inp_label_check")
             label_check.click()
 
-            time.sleep(2)
+            time.sleep(2)  # 클릭 후 페이지 로드 대기
 
-            sentence_text = driver.find_element(By.CSS_SELECTOR, 'div.origin').text
+            origin_div = driver.find_element(By.CSS_SELECTOR, 'div.origin')
+            text_span = origin_div.find_element(By.CSS_SELECTOR, 'span.text')
+            
+            # span.text 내부의 모든 텍스트를 추출
+            sentence = text_span.text
             definition_text = driver.find_element(By.CSS_SELECTOR, 'div.translate').text
             source_text = driver.find_element(By.CSS_SELECTOR, 'a.source').text
 
             # 문장 객체 생성
-            Sentence.objects.create(
-                sentence=sentence_text,
+            sentence_obj = Sentence.objects.get_or_create(
+                sentence=sentence,
                 definition=definition_text,
                 source=source_text,
-                word=word_obj
             )
+            print(f"Sentence saved: {sentence}")
+
+            sentence_obj.word.add(word_obj)
+            sentence_obj.save()
 
         except Exception as e:
             print(f"clicking label 에러: {e}")

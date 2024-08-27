@@ -34,7 +34,7 @@ class Word(models.Model):
 class Sentence(models.Model):
     sentence = models.TextField("예문")
     definition = models.TextField("뜻", null=True, blank=True)
-    word = models.ManyToManyField(Word, related_name='sentences')
+    word = models.ForeignKey(Word, on_delete=models.CASCADE, related_name='sentences')
     source = models.CharField("출처", max_length=100)
 
     def __str__(self):
