@@ -148,15 +148,13 @@ def get_sentences(request):
             source_text = driver.find_element(By.CSS_SELECTOR, 'a.source').text
 
             # 문장 객체 생성
-            sentence_obj = Sentence.objects.get_or_create(
+            Sentence.objects.get_or_create(
                 sentence=sentence,
                 definition=definition_text,
                 source=source_text,
+                word=word_obj,
             )
             print(f"Sentence saved: {sentence}")
-
-            sentence_obj.word.add(word_obj)
-            sentence_obj.save()
 
         except Exception as e:
             print(f"clicking label 에러: {e}")

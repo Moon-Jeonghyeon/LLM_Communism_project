@@ -19,12 +19,12 @@ class SentenceAdmin(admin.ModelAdmin):
         "sentence",
         "definition",
         "source",
-        "get_words",
+        "word",
     ]
 
-    def get_words(self):
-        return ", ".join([word.word for word in self.word.all()])
-    get_words.short_description = "Words"  # 관리자 페이지에 표시할 이름
+    # def get_words(self):
+    #     return ", ".join([word.word for word in self.word.all()])
+    # get_words.short_description = "Words"  # 관리자 페이지에 표시할 이름
 
 @admin.register(Vocabulary)
 class VocabularyAdmin(admin.ModelAdmin):
