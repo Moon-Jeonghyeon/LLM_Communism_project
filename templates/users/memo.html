@@ -1,0 +1,27 @@
+{% include 'nav.html' %}
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Document</title>
+    </head>
+    <body>
+        <h1>
+            MEMO
+        </h1>
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div>
+                <label>내용</label>
+                <textarea name="content" cols="50" rows="10"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">작성</button>
+        </form>
+        <!-- 메모장 기능 구현 -->
+        {% for memo in memos %}
+            {{ memo.content }}
+            <br>
+        {% endfor %}
+    </body>
+    </html>
