@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="ko">
+    <head>
+        <title>English Learner</title>
+    </head>
+    <body>
+        {% include 'nav.html' %}
+        <h2>{{ request.user.username }}의 단어장</h2>
+        {% for vocab in vocabulary %}
+            <p>{{ vocab.word.word }} - {{ vocab.word.definition }}</p>
+        {% endfor %}
+    </body>
+</html>

@@ -7,6 +7,7 @@ from selenium.webdriver.common.keys import Keys
 import time
 from words.models import Topic, Word, Sentence, Vocabulary, Quiz, Memo
 from random import sample
+from collections import defaultdict
 
 # Create your views here.
 def get_words(request):
@@ -163,78 +164,139 @@ def get_sentences(request):
     driver.quit()
 
 def category(request):
-    main_topics = Topic.objects.values_list("main_topic", flat=True).distinct()
+    # 난이도 선택
+    difficulty_choices = (
+        ("A1", "입문"),
+        ("A2", "초급"),
+        ("B1", "중급"),
+        ("B2", "중상급"),
+        ("C1", "상급"),
+        ("C2", "고급")
+    )
 
-    topic_data = []
+    # defaultdict 사용하기
+    topic_data = defaultdict(list)
+    
+    # 주제 객체 반환
+    for obj in Topic.objects.all():
+        # 주제 객체의 main_topic을 키로 하고, 여러 obj(주제 객체)를 값으로 리스트 안에 추가한다.
+        topic_data[obj.main_topic].append(obj)
+    # topic_data 를 defaultdict 가 아닌 일반 dict 로 묶어준다.
+    topic_data = dict(topic_data)
+    print(topic_data)
 
-    for main in main_topics:
-        sub_topics = Topic.objects.filter(main_topic=main).values_list("sub_topic", flat=True).distinct()
-        sub_topics = list(sub_topics)
-        topic_data.append({
-            "main_topic": main,
-            "sub_topics": sub_topics,
-        })
+    context = {
+        "topic_data": topic_data,
+        "difficulty_choices": difficulty_choices,
+    }
 
-    return render(request, "words/category.html", {"topic_data": topic_data})
+    return render(request, "words/category.html", context)
     
 
-def voca(request):
-    return render(request, "words/voca.html")
+def learn_words(request):
+    topic_id = request.GET.get("topic_id")
+    difficulty = request.GET.get("difficulty")
 
-def learn_words(request, topic_id):
-    # 주제에 해당하는 단어들 중 뜻이 있는 단어들
-    words = Word.objects.filter(topic__id=topic_id, definition__isnull=False)
+    words_with_sentences = []
+
+    # 조건에 맞는 단어 필터링하기
+    # 주제&난이도별 단어인 경우
+    if topic_id and difficulty:
+        words = Word.objects.filter(topic__id=topic_id, difficulty=difficulty, definition__isnull=False)
+
+    # 주제별 단어인 경우
+    elif topic_id:
+        words = Word.objects.filter(topic__id=topic_id, definition__isnull=False)
+
+    # 난이도별 단어인 경우
+    elif difficulty:
+        words = Word.objects.filter(difficulty=difficulty, definition__isnull=False)
+    
+    # else:
+        words = Word.objects.filter(definition__isnull=False)
+    
     # 그 중 예문이 있는 단어들
     words_with_sentences = [word for word in words if word.sentences.exists()]
 
     # 랜덤으로 10개 단어 선택
     selected_words = sample(words_with_sentences, min(len(words_with_sentences), 10))
 
+    # template에 아이디 자리인 value 값에 넘겨주기 위해 만든 변수
+    selected_words_ids = ",".join([str(word.id) for word in words])
+
     context = {
         "selected_words": selected_words,
+        "selected_words_ids": selected_words_ids,
+        "topic_id": topic_id,
+        "difficulty": difficulty,
     }
 
     return render(request, "words/learn_words.html", context)
 
+def filtering_words(user, topic_id, difficulty):
+    # 주제&난이도별 단어인 경우
+    if topic_id and difficulty:
+
+        # 주제&난이도별 단어 중 10개 단어 선택
+        all_words = Word.objects.filter(topic__id=topic_id, difficulty=difficulty, definition__isnull=False, sentences__definition__isnull=False).order_by("?")[:10]
+
+        # 사용자의 단어장에서 단어 객체 반환
+        vocab_words = Vocabulary.objects.filter(user=user, word__topic__id=topic_id, word__difficulty=difficulty).values_list("word", flat=True)
+    
+    # 주제별 단어인 경우
+    elif topic_id:
+        all_words = Word.objects.filter(topic__id=topic_id, definition__isnull=False, sentences__definition__isnull=False).order_by("?")[:10]
+        vocab_words = Vocabulary.objects.filter(user=user, word__topic__id=topic_id).values_list("word", flat=True)
+
+    # 난이도별 단어인 경우
+    elif difficulty:
+        all_words = Word.objects.filter(difficulty=difficulty, definition__isnull=False, sentences__definition__isnull=False).order_by("?")[:10]
+        vocab_words = Vocabulary.objects.filter(user=user, word__difficulty=difficulty).values_list("word", flat=True)
+
+    # 이외 경우
+    else:
+        all_words = Word.objects.filter(definition__isnull=False, sentences__definition__isnull=False).order_by("?")[:10]
+        vocab_words = Vocabulary.objects.filter(user=user).values_list("word", flat=True)
+
+    # 단어장에 있는 단어로 필터링된 단어 가져오기
+    vocab_words = Word.objects.filter(id__in=vocab_words, definition__isnull=False, sentences__definition__isnull=False).order_by("?")[:10]
+
+    # 단어가 있는지 확인하고, 중복 없이 두 리스트를 합치기(|)
+    combined_words = list(set(all_words) | set(vocab_words))
+    if combined_words:
+        return combined_words[:10]
+    return combined_words
+
 def quiz(request):
-    # 사용자가 학습한 경우 학습한 단어들로만 문제를 내고, 사용자가 학습 없이 문제 풀기를 선택한 경우 단어장에 있는 단어와 랜덤 10개의 단어 중 무작위로 10개를 선택함
+    # 쿼리스트링에서 topic_id와 difficulty 값 가져오기
+    topic_id = request.GET.get("topic_id")
+    difficulty = request.GET.get("difficulty")
 
     # POST 방식 요청 시
     if request.method == "POST":
         selected_words = request.POST.get("selected_words")
+        print(selected_words)
 
-        # 선택 단어들이 있다면
         if selected_words:
-            # 이전 선택 단어들은 id가 쉼표로 구분되어 있으므로 , 를 기준으로 분리함
+            # 선택된 단어들로 필터링
             word_ids = selected_words.split(",")
-            
-            # word_ids 에 해당하는 단어 중 단어 뜻과 문장 해석이 있는 단어 객체 반환
-            words = Word.objects.filter(id__in=word_ids, definition__isnull=False, sentences_definition__isnull=False)
+            words = Word.objects.filter(id__in=word_ids, definition__isnull=False, sentences__definition__isnull=False)
 
-        # 사용자가 단어를 학습하지 않은 경우   
+            print("word_ids:", word_ids)
+
         else:
-            # 전체 단어 중 랜덤하게 10개 단어 선택
-            all_words = list(Word.objects.filter(definition__isnull=False, sentences__definition__isnull=False).order_by("?")[:10])
-            
-            # 사용자의 단어장에서 단어 객체 반환
-            vocab_words = list(Vocabulary.objects.filter(user=request.user).values_list("word", flat=True))
+            # 주제와 난이도에 따른 필터링
+            words = filtering_words(request.user, topic_id, difficulty)
 
-            # 단어 뜻과 예문 해석이 있는 단어를 랜덤하게 10개 선택
-            vocab_words = Word.objects.filter(id__in=vocab_words, definition__isnull=False, sentences__definition__isnull=False).order_by("?")[:10]
-
-            # 두 리스트를 합치고, 중복 없이 10개의 단어를 랜덤하게 선택함
-            combined_words = list(set(all_words + list(vocab_words)))
-            words = combined_words[:10]
-
-    # GET 방식 요청 시(사용자가 바로 페이지에 접근한 경우) 동일한 로직 실행
     else:
-        all_words = list(Word.objects.filter(definition__isnull=False, sentences__definition__isnull=False).order_by("?")[:10])
-        vocab_words = list(Vocabulary.objects.filter(user=request.user).values_list('word', flat=True))
-        vocab_words = Word.objects.filter(id__in=vocab_words, definition__isnull=False, sentences__definition__isnull=False).order_by("?")[:10]
-        combined_words = list(set(all_words + list(vocab_words)))
-        words = combined_words[:10]
+        # GET 방식 요청 시 선택된 단어가 없는 경우와 동일한 로직
+        words = filtering_words(request.user, topic_id, difficulty)
 
+    # selected_words 가 있는 경우 words 는 selected_words 의 아이디로 필터링한 단어 객체로 퀴즈를 내고, combined_words 는 selected_words 가 없는 경우에 사용됨.
+    print(words)
+    print(len(words))
     return render(request, "words/quiz.html", {"words": words})
+
 
 def quiz_results(request):
     # POST 방식 요청 시
@@ -247,7 +309,7 @@ def quiz_results(request):
 
         for word in words:
             # 사용자가 입력한 정답
-            user_answer = request.POST.get(f"anwers_{ word.id }")
+            user_answer = request.POST.get(f"answers_{ word.id }")
 
             # 사용자 입력 답이 단어와 같으면 True
             correct = user_answer.lower() == word.word.lower()
@@ -276,3 +338,7 @@ def quiz_results(request):
         }
 
         return render(request, "words/quiz_results.html", context)
+
+def vocabulary(request):
+    user_vocabulary = Vocabulary.objects.filter(user=request.user).select_related("word")
+    return render(request, "words/vocabulary.html", {"vocabulary": user_vocabulary})

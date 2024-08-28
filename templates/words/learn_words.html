@@ -4,6 +4,7 @@
         <title>English Learner</title>
     </head>
     <body>
+        {% include 'nav.html' %}
         <h1>Learn Words</h1>
 
         {% for word in selected_words %}
@@ -11,13 +12,17 @@
             <p>Meaning: {{ word.definition }}</p>
             <h3>Example Sentences:</h3>
             {% for sentence in word.sentences.all %}
-                {{ sentence.sentence }} - {{ sentence.definition +}}
+                {{ sentence.sentence }} - {{ sentence.definition }}
             {% endfor %}
         {% endfor %}
-    <form method="POST" action="{% url 'words:quiz' %}">
-        {% csrf_token %}
-        <input type="hidden" name="selected_words" value="{{ words | join:',' }}">
-        <button type="submit">문제 풀기</button>
-    </form>
+
+        <!-- 문제 풀기 폼 -->
+        <form method="POST" action="{% url 'words:quiz' %}">
+            {% csrf_token %}
+            {% for word in selected_words %}
+                <input type="hidden" name="selected_words" value="{{ selected_words_ids }}">
+            {% endfor %}
+            <button type="submit">문제 풀기</button>
+        </form>
     </body>
 </html>

@@ -4,10 +4,12 @@
         <title>English Learner</title>
     </head>
     <body>
+        {% include 'nav.html' %}
         <h2>퀴즈 풀기</h2>
         <form method="POST" action="{% url 'words:quiz_results' %}">
             {% csrf_token %}
             {% for word in words %}
+                <p>{{ words|length }}</p>
                 <label>{{ word.definition }}</label>
                 <input type="text" name="answers_{{ word.id }}" placeholder="type your answer">
             {% endfor %}
