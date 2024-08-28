@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect, get_object_or_404
 from bs4 import BeautifulSoup
 from urllib.request import urlopen
 from selenium import webdriver
@@ -212,7 +212,7 @@ def learn_words(request):
     elif difficulty:
         words = Word.objects.filter(difficulty=difficulty, definition__isnull=False)
     
-    # else:
+    else:
         words = Word.objects.filter(definition__isnull=False)
     
     # 그 중 예문이 있는 단어들
@@ -293,8 +293,6 @@ def quiz(request):
         words = filtering_words(request.user, topic_id, difficulty)
 
     # selected_words 가 있는 경우 words 는 selected_words 의 아이디로 필터링한 단어 객체로 퀴즈를 내고, combined_words 는 selected_words 가 없는 경우에 사용됨.
-    print(words)
-    print(len(words))
     return render(request, "words/quiz.html", {"words": words})
 
 
@@ -340,5 +338,47 @@ def quiz_results(request):
         return render(request, "words/quiz_results.html", context)
 
 def vocabulary(request):
-    user_vocabulary = Vocabulary.objects.filter(user=request.user).select_related("word")
-    return render(request, "words/vocabulary.html", {"vocabulary": user_vocabulary})
+    # 쿼리스트링에서 정렬 기준과 방향 가져오기
+    order_by = request.GET.get("order_by", "word__word")
+    direction = request.GET.get("direction", "asc")
+
+    # 주제별 정렬
+    if order_by == "word__topic__main_topic":
+        if direction == "desc":
+            order_by_fields = ["word__topic__main_topic", "-word__word"]
+        else:
+            order_by_fields = ["word__topic__main_topic", "word__word"]
+
+    # 난이도별 정렬
+    elif order_by == "word__difficulty":
+        if direction == "desc":
+            order_by_fields = ["word__difficulty", "-word__word"]
+        else:
+            order_by_fields = ["word__difficulty", "word__word"]
+
+    # 단어 정렬
+    else:
+        if direction == "desc":
+            order_by_fields = ["-word__word"]
+        else:
+            order_by_fields = ["word__word"]
+
+    user_vocabulary = Vocabulary.objects.filter(user=request.user).select_related("word").order_by(*order_by_fields)
+
+    # lstrip을 사용해 기본 선택 상태를 유지함
+    context = {
+        "vocabulary": user_vocabulary,
+        "order_by": order_by.lstrip("-"),
+        "direction": direction,
+    }
+
+    return render(request, "words/vocabulary.html", context)
+
+def delete_vocab(request, vocab_id):
+    vocab = get_object_or_404(Vocabulary, id=vocab_id, user=request.user)
+
+    if request.method == "POST":
+        vocab.delete()
+        return redirect("/words/vocabulary/")
+    
+    return render(request, "words/vocabulary.html")

@@ -1,5 +1,5 @@
 from django.contrib.auth import authenticate, login, logout
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from users.forms import LoginForm, SignupForm
 from users.models import User
 from words.models import Memo
@@ -83,11 +83,11 @@ def memo(request):
 
         content = request.POST["content"]
 
-        post = Memo.objects.create(
+        memo = Memo.objects.create(
             content=content,
             user=request.user,
         )
-        post.save()
+        memo.save()
         return redirect("/users/memo/")
 
     else : # method가  post 가 아닐때
@@ -95,3 +95,24 @@ def memo(request):
 
     return render(request, "users/memo.html", context)
 
+def delete_memo(request, memo_id):
+    memo = get_object_or_404(Memo, id=memo_id, user=request.user)
+
+    if request.method == "POST":
+        memo.delete()
+        return redirect("/users/memo/")
+    
+    return render(request, "users/memo.html")
+
+def edit_memo(request, memo_id):
+    # 수정할 Todo 객체를 가져오고, 없다면 404 에러 반환
+    memo = get_object_or_404(Memo, id=memo_id)
+
+    if request.method == "POST":
+        # list나 category 값이 없으면 원래 값을 그대로 사용
+        memo.content = request.POST.get("content", memo.content)
+        memo.save()
+        return redirect("/users/memo/")
+    
+    # GET 요청 시 기존 데이터와 함께 수정 페이지 렌더링
+    return render(request, "users/edit_memo.html", {"memo": memo})

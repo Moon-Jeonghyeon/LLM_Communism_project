@@ -6,8 +6,34 @@
     <body>
         {% include 'nav.html' %}
         <h2>{{ request.user.username }}의 단어장</h2>
+
+        <!-- 정렬 옵션 -->
+        <form method="GET" action="">
+            <label for="order_by">정렬 기준:</label>
+            <select name="order_by">
+                <option value="word" {% if order_by == "word" %}selected{% endif %}>단어</option>
+                <option value="word__topic__main_topic" {% if order_by == "word__topic__main_topic" %}selected{% endif %}>주제</option>
+                <option value="word__difficulty" {% if order_by == "word__difficulty" %}selected{% endif %}>난이도</option>
+            </select>
+
+            <label for="direction">정렬 방향:</label>
+            <select name="direction">
+                <option value="asc" {% if direction == "asc" %}selected{% endif %}>오름차순</option>
+                <option value="desc" {% if direction == "desc" %}selected{% endif %}>내림차순</option>
+            </select>
+
+            <button type="submit">정렬</button>
+        </form>
+
+        <!-- 단어 목록 -->
         {% for vocab in vocabulary %}
             <p>{{ vocab.word.word }} - {{ vocab.word.definition }}</p>
+
+            <!-- 단어 삭제 기능 -->
+            <form method="POST" action="{% url 'words:delete_vocab' vocab.id %}">
+                {% csrf_token %}
+                <button type="submit">삭제</button>
+            </form>
         {% endfor %}
     </body>
 </html>
