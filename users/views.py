@@ -3,6 +3,9 @@ from django.shortcuts import render, redirect, get_object_or_404
 from users.forms import LoginForm, SignupForm
 from users.models import User
 from words.models import Memo
+import re
+from django.contrib import messages
+
 
 # Create your views here.
 def login_view(request):
@@ -116,3 +119,55 @@ def edit_memo(request, memo_id):
     
     # GET 요청 시 기존 데이터와 함께 수정 페이지 렌더링
     return render(request, "users/edit_memo.html", {"memo": memo})
+
+def profile(request, user_id):
+    profile_user = get_object_or_404(User, id=user_id)
+
+    # 요청을 보낸 사용자가 프로필 사용자가 아닐 때
+    if request.user.is_authenticated and profile_user != request.user:
+        # 팔로우 여부 확인
+        pass
+
+    context = {
+        "profile_user": profile_user,
+    }
+
+    return render(request, "users/profile.html", context)
+
+def profile_edit(request, field):
+    # 사용자가 로그인된 상태가 아니라면 로그인 페이지로 리다이렉트
+    if not request.user.is_authenticated:
+        return redirect('/user/login/')
+    
+    profile_user = request.user
+
+    # POST 요청 시
+    if request.method == "POST":
+        # field가 profile_image일 때
+        if field == "profile_image":
+            profile_user.profile_image = request.FILES.get("profile_image")
+
+        # field가 nickname일 때
+        elif field == "name":
+            profile_user.name = request.POST.get("name", profile_user.name)
+
+        # field가 email일 때
+        elif field == "email":
+            profile_user.email = request.POST.get("email", profile_user.email)
+            email_regex = re.compile(r'^[a-zA-Z0-9+-_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$')
+
+            if not email_regex.search(profile_user.email):
+                messages.warning(request, "이메일 형식에 맞지 않습니다.")
+                return redirect("users:profile", user_id=profile_user.id)
+            
+
+        # field에 이외 잘못된 값이 들어갔을 때, 프로필 페이지로 리다이렉트
+        else:
+            return redirect("users:profile", user_id=profile_user.id)
+        
+        profile_user.save()
+        # 수정된 내용을 반영한 후 리다이렉트
+        return redirect("users:profile", user_id=profile_user.id)
+    
+    # GET 요청 시 기존 데이터와 함께 수정 폼 호출
+    return render(request, "users:profile_edit", {"profile_user": profile_user})
