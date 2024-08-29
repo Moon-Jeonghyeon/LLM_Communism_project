@@ -5,6 +5,7 @@ from users.models import User
 from words.models import Memo
 import re
 from django.contrib import messages
+from django.http import HttpResponse
 
 
 # Create your views here.
@@ -105,7 +106,7 @@ def delete_memo(request, memo_id):
         memo.delete()
         return redirect("/users/memo/")
     
-    return render(request, "users/memo.html")
+    return HttpResponse(status=405)
 
 def edit_memo(request, memo_id):
     # 수정할 Todo 객체를 가져오고, 없다면 404 에러 반환

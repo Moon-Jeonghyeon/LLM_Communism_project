@@ -1,13 +1,13 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from bs4 import BeautifulSoup
 from urllib.request import urlopen
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
 import time
-from words.models import Topic, Word, Sentence, Vocabulary, Quiz, Memo
+from words.models import Topic, Word, Sentence, Vocabulary
+from users.models import Memo
 from random import sample
 from collections import defaultdict
+from django.http import HttpResponseRedirect
 
 # Create your views here.
 def get_words(request):
@@ -275,14 +275,11 @@ def quiz(request):
     # POST 방식 요청 시
     if request.method == "POST":
         selected_words = request.POST.get("selected_words")
-        print(selected_words)
 
         if selected_words:
             # 선택된 단어들로 필터링
             word_ids = selected_words.split(",")
             words = Word.objects.filter(id__in=word_ids, definition__isnull=False, sentences__definition__isnull=False)
-
-            print("word_ids:", word_ids)
 
         else:
             # 주제와 난이도에 따른 필터링
@@ -336,6 +333,38 @@ def quiz_results(request):
         }
 
         return render(request, "words/quiz_results.html", context)
+    
+def filtering_vocab(request):
+    # 쿼리스트링에서 주제와 난이도 정보를 가져옴
+    topic_id = request.GET.get("topic_id")
+    difficulty = request.GET.get("difficulty")
+
+    # 요청 사용자의 단어장을 반환함
+    filtered_vocab = Vocabulary.objects.filter(user=request.user).select_related("word")
+
+    # 주제별 단어인 경우
+    if topic_id:
+        filtered_vocab = filtered_vocab.filter(word__topic__id=topic_id)
+    
+    # 난이도별 단어인 경우
+    if difficulty:
+        filtered_vocab = filtered_vocab.filter(word__difficulty=difficulty)
+
+    context = {
+        "vocabulary": filtered_vocab,
+        "topics": Topic.objects.all(),
+        "difficulty_choices": (
+            ("A1", "입문"),
+            ("A2", "초급"),
+            ("B1", "중급"),
+            ("B2", "중상급"),
+            ("C1", "상급"),
+            ("C2", "고급"),
+        ),
+        "topic_id": topic_id,
+        "difficulty": difficulty,
+    }
+    return render(request, "words/filtered_vocab.html", context)
 
 def vocabulary(request):
     # 쿼리스트링에서 정렬 기준과 방향 가져오기
@@ -358,36 +387,24 @@ def vocabulary(request):
     else : # method가  post 가 아닐때
         print("method get")
 
-    # 주제별 정렬
-    if order_by == "word__topic__main_topic":
-        if direction == "desc":
-            order_by_fields = ["word__topic__main_topic", "-word__word"]
-        else:
-            order_by_fields = ["word__topic__main_topic", "word__word"]
+    # 요청 사용자의 단어 리스트를 반환함
+    user_vocabulary = Vocabulary.objects.filter(user=request.user).select_related("word")
 
-    # 난이도별 정렬
-    elif order_by == "word__difficulty":
-        if direction == "desc":
-            order_by_fields = ["word__difficulty", "-word__word"]
-        else:
-            order_by_fields = ["word__difficulty", "word__word"]
+    # 모든 주제를 반환함
+    topics = Topic.objects.all()
 
-    # 단어 정렬
-    else:
-        if direction == "desc":
-            order_by_fields = ["-word__word"]
-        else:
-            order_by_fields = ["word__word"]
-
-    user_vocabulary = Vocabulary.objects.filter(user=request.user).select_related("word").order_by(*order_by_fields)
-
-    # lstrip을 사용해 기본 선택 상태를 유지함
     context = {
         "vocabulary": user_vocabulary,
-        "order_by": order_by.lstrip("-"),
-        "direction": direction,
+        "topics": topics,
+        "difficulty_choices": (
+            ("A1", "입문"),
+            ("A2", "초급"),
+            ("B1", "중급"),
+            ("B2", "중상급"),
+            ("C1", "상급"),
+            ("C2", "고급"),
+        ),
     }
-
     return render(request, "words/vocabulary.html", context)
 
 
@@ -396,6 +413,22 @@ def delete_vocab(request, vocab_id):
 
     if request.method == "POST":
         vocab.delete()
-        return redirect("/words/vocabulary/")
+
+        # 쿼리스트링에서 주제와 난이도 정보를 가져오기
+        topic_id = request.GET.get("topic_id", "")
+        difficulty = request.GET.get("difficulty", "")
+
+        # 필터 단어장 페이지로 리다이렉트
+        if topic_id or difficulty:
+            url = "/words/filtered_vocab/?"
+            if topic_id:
+                url += f"topic_id={topic_id}"
+            if difficulty:
+                url += f"&difficulty={difficulty}"
+        else:
+            # 쿼리스트링이 없으면 전체 단어장으로 리다이렉트
+            url = "/words/vocabulary/"
+
+        return HttpResponseRedirect(url)
     
     return render(request, "words/vocabulary.html")
