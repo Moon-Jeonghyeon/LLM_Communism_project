@@ -14,8 +14,3 @@ urlpatterns = [
     path("profile/<int:user_id>/", views.profile, name="profile"),
     path("edit/<str:field>/", views.profile_edit, name="profile_edit"),
 ]
-
-urlpatterns += static(
-    prefix=settings.MEDIA_URL,
-    document_root=settings.MEDIA_ROOT,
-)

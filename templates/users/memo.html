@@ -8,7 +8,7 @@
     background : lightblue;
     }
     .item:nth-child(odd) {
-    background : tomato;
+    background : #1abc9c;
     }
 
     .box-container {
@@ -41,10 +41,11 @@
 
     </div>
     <br>
-    <div class="ma_01" >
+    <div class="ma_01">
         <!-- 메모장 기능 구현 -->
-        <div style="width: 500px">
+        <div>
         {% for memo in memos %}
+            <div style="width: 500px; background-color :#b0f9eb;" >
             <p class="item">Content: {{ memo.content|truncatechars:20 }}{% if memo.content|length > 10 %}...{% endif %}</p>
             <p>Created at: {{ memo.created_at }}</p>
             <p>Updated at:{{ memo.updated_at }}</p>
@@ -60,6 +61,8 @@
 
             <!-- 삭제 버튼 (모달 트리거) -->
             <button class="btn btn-danger btn-sm" data-toggle="modal" data-target="#delete_modal" data-memo-id="{{ memo.id }}">Delete</button>
+            </div>
+            <div style="background-color:transparent;"> &nbsp </div>
         {% endfor %}
         </div>
     </div>

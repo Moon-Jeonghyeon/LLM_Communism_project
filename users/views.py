@@ -81,7 +81,7 @@ def signup(request):
 
 def memo(request):
     # 최근 작성된 글이 위로 오도록 내림차순 정렬
-    memos = Memo.objects.all().order_by('-created_at')
+    memos = Memo.objects.filter(user=request.user).order_by('-created_at')
 
     # 수정할 메모를 가져옴
     edit_memo_id = request.GET.get('edit_memo_id')

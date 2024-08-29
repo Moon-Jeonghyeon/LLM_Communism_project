@@ -1,13 +1,32 @@
 {% extends 'base.html' %}
+{% block head %}
+    <header style="height: 200px; background-color: #1abc9c;">
+        <div class="container d-flex align-items-center flex-column" style="margin-top: 50px; margin-bottom: 30px;">
+            <!-- Masthead Avatar Image-->
+            <!-- Masthead Heading-->
+            <h1 class="masthead-heading text-uppercase mb-0">English Learner</h1>
+            <br>
+            <br>
+            <br>
+            <br>
+            <!-- Icon Divider-->
+            <div class="divider-custom divider-light">
+            </div>
+          </div>
+    </header>
+{% endblock %}
 
 {% block base_content %}
-    <div id="signup">
+    <div id="signup" style=" margin: 0 auto; margin-top: 30px;">
         <form method="POST" enctype="multipart/form-data">
-            <h1>English Learner</h1>
+            <h1 style="text-align: center; color: #1abc9c;">Register</h1>
+            <br>
             {% csrf_token %}
             {{ form.as_p }}
-            <button type="submit" class="btn btn-signup">Register</button>
-            <a href="{% url 'users:login' %}">Sign in</a>
+            <div style="text-align: center;">
+                <button type="submit" class="btn btn-signup">Register</button>
+                <a href="{% url 'users:login' %}">Sign in</a>
+            </div>
         </form>
     </div>
 {% endblock %}
