@@ -1,23 +1,26 @@
 {% extends 'voca_base.html' %}
 
 {% block base_content %}
-<div class="ma">
+<div class="ma" style="background-color: #1abc9c;">
     <h2>Result</h2>
 </div>
 <div class="box-container">
     <div class="ma">
         {% for result in results %}
             <div>
-                <h5>{{ result.word.word }}</h5>
-                <p>({{ result.word.definition|linebreaksbr }})</p>
+                <h5 style="font-size: 25px">{{ result.word.word }}</h5>
+                <p style="font-size: 20px">({{ result.word.definition|linebreaksbr }})</p>
             </div>
-            <div>
-                Corrected: {% if result.correct %}Correct{% else %}Incorrect{% endif %}
-                <br>
-                My Answer: {{ result.user_answer }}
-                <br>
-                Answer: {{ result.word.word }}
-                <br>
+            <div style="display:inline; font-size: 15px;">
+                Corrected : 
+                {% if result.correct %}
+                    <p style="display:inline; color: rgba(97, 248, 147, 0.997);">correct</p>
+                    <br>
+                {% else %}
+                    <p style="display:inline; color: rgb(255, 0, 0);">Incorrect</p>
+                    <br>
+                {% endif %}
+                My Answer : {{ result.user_answer }}
                 <br>
                 <br>
                 <br>
@@ -27,7 +30,7 @@
         {% endfor %}
     </div>
     <div>
-        <p>Corrected: {{ correct_count }}/{{ total_count }}</p>
+        <p style="font-size: 35px">Corrected: {{ correct_count }}/{{ total_count }}</p>
     <!-- 단어장으로 이동하기 -->
         <form method="GET" action="{% url 'words:vocabulary' %}">
             <button type="submit">Go to My Vocabulary List</button>

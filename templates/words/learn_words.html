@@ -3,17 +3,17 @@
 {% block base_content %}
 <div class="box-container">
     <div class="ma">
-        <h1>Learn Words</h1>
+        <h1 style="background-color: #1abc9c;" >Learn Words</h1>
         <h1>
             <a href ="{% url 'words:category' %}">Category</a>
         </h1>
 
         {% for word in selected_words %}
-            <h2>{{ word.word }}</h2>
-            <p>Meaning : </p>
-            <p>{{ word.definition }}</p>
-            <p>Example Sentences : </p>
-            <p>
+            <h2 style="font-size: 35px;">{{ word.word }}</h2>
+            <p style="color: #1abc9c; font-size: 20px;">Meaning : </p>
+            <p style="font-size: 20px;">{{ word.definition }}</p>
+            <p style="color: #1abc9c; font-size: 20px;">Example Sentences : </p>
+            <p style="font-size: 20px;">
             {% for sentence in word.sentences.all %}
                 {{ sentence.sentence }} - {{ sentence.definition }}
             {% endfor %}
@@ -35,6 +35,7 @@
                 <input type="hidden" name="topic_id" value="{{ topic_id }}">
                 <input type="hidden" name="difficulty" value="{{ difficulty }}">
             {% endfor %}
+            <p style="font-size: 35px">Go to Quiz</p>
             <button type="submit">Quiz</button>
         </form>
     </div>
