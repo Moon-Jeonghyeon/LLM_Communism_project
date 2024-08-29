@@ -3,8 +3,7 @@ from urllib.request import urlopen
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 import time
-from words.models import Topic, Word, Sentence, Vocabulary
-from users.models import Memo
+from words.models import Topic, Word, Sentence, Vocabulary, Memo
 from random import sample
 from collections import defaultdict
 from django.http import HttpResponseRedirect
@@ -367,12 +366,7 @@ def filtering_vocab(request):
     return render(request, "words/filtered_vocab.html", context)
 
 def vocabulary(request):
-    # 쿼리스트링에서 정렬 기준과 방향 가져오기
-    order_by = request.GET.get("order_by", "word__word")
-    direction = request.GET.get("direction", "asc")
     memos = Memo.objects.all()
-    context = { "memos" : memos }
-
     if request.method == "POST": # method가 post일때
 
         content = request.POST["content"]
@@ -404,6 +398,7 @@ def vocabulary(request):
             ("C1", "상급"),
             ("C2", "고급"),
         ),
+        "memos": memos,
     }
     return render(request, "words/vocabulary.html", context)
 
