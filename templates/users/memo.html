@@ -33,66 +33,61 @@
         <h1>MEMO</h1>
         <form method="POST" enctype="multipart/form-data">
             {% csrf_token %}
-            <textarea name="content" cols="100" rows="15"></textarea>
+            <textarea name="content" cols="100" rows="15">{% if edit_memo %}{{ edit_memo.content }}{% endif %}</textarea>
             <br>
-            <button type="submit" class="btn btn-primary">작성</button>
+            <input type="hidden" id="memoId" name="memo_id" value="{% if edit_memo %}{{ edit_memo.id }}{% endif %}">
+            <button type="submit" class="btn btn-primary">{% if edit_memo %}Edit{% else %}Take Notes{% endif %}</button>
         </form>
 
     </div>
     <br>
     <div class="ma_01" >
         <!-- 메모장 기능 구현 -->
-         <div style="width: 500px">
+        <div style="width: 500px">
         {% for memo in memos %}
-            <p class="item">내용: {{ memo.content|linebreaksbr }}</p>
-            <p>작성일: {{ memo.created_at }}</p>
-            <p>수정일:{{ memo.updated_at }}</p>
+            <p class="item">Content: {{ memo.content|truncatechars:20 }}{% if memo.content|length > 10 %}...{% endif %}</p>
+            <p>Created at: {{ memo.created_at }}</p>
+            <p>Updated at:{{ memo.updated_at }}</p>
             <form method="POST" action="{% url 'users:delete_memo' memo.id %}">
                 {% csrf_token %}
             </form>
 
-            <!-- 삭제 버튼 (모달 트리거) -->
-            <button class="btn btn-danger btn-sm" data-toggle="modal" data-target="#delete_modal" data-memo-id="{{ memo.id }}">삭제</button>
-        
-            <!-- 리스트 수정 -->
-            <button onclick="document.getElementById('edit_form_{{ memo.id }}').style.display='block'">수정</button>
-
-            <!-- 수정 폼 -->
-            <form method="POST" id="edit_form_{{ memo.id }}" action="{% url 'users:edit_memo' memo.id %}" style="display:none">
-                {% csrf_token %}
-                <input type="text" name="content" value="{{ memo.content }}">
-                <button type="submit">확인</button>
+            <!-- 수정 버튼 -->
+            <form method="GET" action="{% url 'users:memo' %}">
+                <input type="hidden" name="edit_memo_id" value="{{ memo.id }}">
+                <button type="submit" class="btn btn-primary btn-sm">See More</button>
             </form>
-            <br>
-            <br>
-            <br>
+
+            <!-- 삭제 버튼 (모달 트리거) -->
+            <button class="btn btn-danger btn-sm" data-toggle="modal" data-target="#delete_modal" data-memo-id="{{ memo.id }}">Delete</button>
         {% endfor %}
         </div>
     </div>
-</div>        
-        <!-- 삭제 모달 -->
-    <div id="delete_modal" class="modal fade" tabindex="-1" role="dialog">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">삭제경고</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <p>이 메모를 삭제하시겠습니까?</p>
-                </div>
-                <div class="modal-footer">
-                    <form id="deleteForm" method="POST" action="">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-danger">삭제하기</button>
-                        <button type="button" class="btn btn-light" data-dismiss="modal">취소하기</button>
-                    </form>
-                </div>
+</div>     
+    
+<!-- 삭제 모달 -->
+<div id="delete_modal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Warning</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this MEMO? Click continue to delete the memo. If not, click cancel.</p>
+            </div>
+            <div class="modal-footer">
+                <form id="deleteForm" method="POST" action="">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Continue</button>
+                    <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
+                </form>
             </div>
         </div>
     </div>
+</div>
 
     <!-- Bootstrap JavaScript and dependencies -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>

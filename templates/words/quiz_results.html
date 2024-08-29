@@ -2,7 +2,7 @@
 
 {% block base_content %}
 <div class="ma">
-    <h2>퀴즈 결과</h2>
+    <h2>Result</h2>
 </div>
 <div class="box-container">
     <div class="ma">
@@ -12,11 +12,11 @@
                 <p>({{ result.word.definition|linebreaksbr }})</p>
             </div>
             <div>
-                정답 여부: {% if result.correct %}정답{% else %}오답{% endif %}
+                Corrected: {% if result.correct %}Correct{% else %}Incorrect{% endif %}
                 <br>
-                내가 입력한 답: {{ result.user_answer }}
+                My Answer: {{ result.user_answer }}
                 <br>
-                원래 정답: {{ result.word.word }}
+                Answer: {{ result.word.word }}
                 <br>
                 <br>
                 <br>
@@ -27,10 +27,10 @@
         {% endfor %}
     </div>
     <div>
-        <p>정답 개수: {{ correct_count }}/{{ total_count }}</p>
+        <p>Corrected: {{ correct_count }}/{{ total_count }}</p>
     <!-- 단어장으로 이동하기 -->
         <form method="GET" action="{% url 'words:vocabulary' %}">
-            <button type="submit">내 단어장으로 이동</button>
+            <button type="submit">Go to My Vocabulary List</button>
         </form>
     </div>
 </div>

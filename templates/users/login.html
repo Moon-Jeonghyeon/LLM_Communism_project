@@ -6,8 +6,8 @@
             <h1>English Learner</h1>
             {% csrf_token %}
             {{ form.as_p }}
-            <button type="submit" class="btn btn-login">로그인</button>
-            <a href="{% url 'users:signup' %}">회원가입 페이지로 이동</a>
+            <button type="submit" class="btn btn-login">Sign in</button>
+            <a href="{% url 'users:signup' %}">Register</a>
         </form>
     </div>
 {% endblock %}
