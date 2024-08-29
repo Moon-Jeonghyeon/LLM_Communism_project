@@ -12,7 +12,7 @@
                 <select name="topic_id">
                     <option value="">Random</option>
                     {% for topic in topics %}
-                        <option value="{{ topic.id }}">{{ topic.main_topic }}</option>
+                        <option value="{{ topic.main_topic }}">{{ topic.main_topic }}</option>
                     {% endfor %}
                 </select>
                 <br>
@@ -26,7 +26,7 @@
             </div>
             <div>
                 <p>&nbsp&nbsp&nbsp&nbsp&nbsp</p>
-                <button type="submit">Filter</button>
+                <button type="submit">Apply Filter</button>
             </div>
             </form>
         </div>
