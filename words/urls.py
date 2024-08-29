@@ -11,4 +11,5 @@ urlpatterns = [
     path("quiz_results/", views.quiz_results, name="quiz_results"),
     path("vocabulary/", views.vocabulary, name="vocabulary"),
     path("vocabulary/delete/<int:vocab_id>/", views.delete_vocab, name="delete_vocab"),
+    path("filtered_vocab/", views.filtering_vocab, name="filtered_vocab"),
 ]

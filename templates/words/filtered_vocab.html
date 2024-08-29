@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko">
     <head>
-        <title>English Learner</title>
+        <title>Filtered Vocabulary</title>
         <!-- Bootstrap CSS -->
         <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     </head>
@@ -9,28 +9,33 @@
         {% include 'nav.html' %}
         <h2>{{ request.user.username }}의 단어장</h2>
 
-        <!-- 필터 옵션 -->
-        <form method="GET" action="{% url 'words:filtered_vocab' %}">
-            <label for="topic_id">주제 선택:</label>
-            <select name="topic_id">
-                <option value="">모든 주제</option>
-                {% for topic in topics %}
-                    <option value="{{ topic.id }}">{{ topic.main_topic }}</option>
-                {% endfor %}
-            </select>
+        <!-- 현재 선택된 필터를 보여줍니다 -->
+        <div>
+            <p>선택 주제: 
+                {% if topic_id %}
+                    {% for topic in topics %}
+                        {% if topic.id %}
+                            {{ topic.main_topic }}
+                        {% endif %}
+                    {% endfor %}
+                {% else %}
+                    모든 주제
+                {% endif %}
+            </p>
+            <p>선택 난이도: 
+                {% if difficulty %}
+                    {% for key, value in difficulty_choices %}
+                        {% if key == difficulty %}
+                            {{ value }}
+                        {% endif %}
+                    {% endfor %}
+                {% else %}
+                    모든 난이도
+                {% endif %}
+            </p>
+        </div>
 
-            <label for="difficulty">난이도 선택:</label>
-            <select name="difficulty">
-                <option value="">모든 난이도</option>
-                {% for key, value in difficulty_choices %}
-                    <option value="{{ key }}">{{ value }}</option>
-                {% endfor %}
-            </select>
-
-            <button type="submit">필터 적용</button>
-        </form>
-
-        <!-- 단어 목록 -->
+        <!-- 필터링된 단어 목록 -->
         {% for vocab in vocabulary %}
             <p>{{ vocab.word.word }} - {{ vocab.word.definition }}</p>
 
@@ -51,7 +56,7 @@
                             <p>이 단어를 삭제하시겠습니까?</p>
                         </div>
                         <div class="modal-footer">
-                            <form id="deleteForm_{{ vocab.id }}" method="POST" action="{% url 'words:delete_vocab' vocab.id %}">
+                            <form id="deleteForm_{{ vocab.id }}" method="POST" action="{% url 'words:delete_vocab' vocab.id %}?{% if topic_id %}topic_id={{ topic_id }}{% endif %}{% if difficulty %}&difficulty={{ difficulty }}{% endif %}">
                                 {% csrf_token %}
                                 <button type="submit" class="btn btn-danger">삭제하기</button>
                                 <button type="button" class="btn btn-light" data-dismiss="modal">취소하기</button>

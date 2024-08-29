@@ -21,6 +21,8 @@
             {% csrf_token %}
             {% for word in selected_words %}
                 <input type="hidden" name="selected_words" value="{{ selected_words_ids }}">
+                <input type="hidden" name="topic_id" value="{{ topic_id }}">
+                <input type="hidden" name="difficulty" value="{{ difficulty }}">
             {% endfor %}
             <button type="submit">문제 풀기</button>
         </form>

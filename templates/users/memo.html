@@ -1,15 +1,15 @@
 {% include 'nav.html' %}
-    <!DOCTYPE html>
-    <html lang="en">
+<!DOCTYPE html>
+<html lang="en">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Document</title>
+        <!-- Bootstrap CSS -->
+        <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     </head>
     <body>
-        <h1>
-            MEMO
-        </h1>
+        <h1>MEMO</h1>
         <form method="POST" enctype="multipart/form-data">
             {% csrf_token %}
             <div>
@@ -23,10 +23,12 @@
             <p>내용: {{ memo.content }} 작성일: {{ memo.created_at }} 수정일:{{ memo.updated_at }}</p>
             <form method="POST" action="{% url 'users:delete_memo' memo.id %}">
                 {% csrf_token %}
-                <button type="submit">삭제</button>
             </form>
 
-            <!-- 리스트 수정 -->
+            <!-- 삭제 버튼 (모달 트리거) -->
+            <button class="btn btn-danger btn-sm" data-toggle="modal" data-target="#delete_modal" data-memo-id="{{ memo.id }}">삭제</button>
+
+            <!-- 메모 수정 -->
             <button onclick="document.getElementById('edit_form_{{ memo.id }}').style.display='block'">수정</button>
 
             <!-- 수정 폼 -->
@@ -37,5 +39,43 @@
             </form>
             <br>
         {% endfor %}
+
+        <!-- 삭제 모달 -->
+        <div id="delete_modal" class="modal fade" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">삭제경고</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>이 메모를 삭제하시겠습니까?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <form id="deleteForm" method="POST" action="">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger">삭제하기</button>
+                            <button type="button" class="btn btn-light" data-dismiss="modal">취소하기</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bootstrap JavaScript and dependencies -->
+        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+        <script type="text/javascript">
+            $('#delete_modal').on('show.bs.modal', function (event) {
+                var button = $(event.relatedTarget);
+                var memoId = button.data('memo-id');
+                var action = `{% url 'users:delete_memo' 0 %}`.replace('0', memoId);
+                $('#deleteForm').attr('action', action);
+            });
+        </script>
     </body>
-    </html>
+</html>
