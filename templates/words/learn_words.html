@@ -1,28 +1,42 @@
-{% extends 'base_01.html' %}
+{% extends 'voca_base.html' %}
 
 {% block base_content %}
-    <h1>Learn Words</h1>
-    <h1>
-        <a href ="{% url 'words:category' %}">카테고리</a>
-    </h1>
+<div class="box-container">
+    <div class="ma">
+        <h1>Learn Words</h1>
+        <h1>
+            <a href ="{% url 'words:category' %}">카테고리</a>
+        </h1>
 
-    {% for word in selected_words %}
-        <h2>{{ word.word }}</h2>
-        <p>Meaning: {{ word.definition }}</p>
-        <h3>Example Sentences:</h3>
-        {% for sentence in word.sentences.all %}
-            {{ sentence.sentence }} - {{ sentence.definition }}
-        {% endfor %}
-    {% endfor %}
-
-    <!-- 문제 풀기 폼 -->
-    <form method="POST" action="{% url 'words:quiz' %}">
-        {% csrf_token %}
         {% for word in selected_words %}
-            <input type="hidden" name="selected_words" value="{{ selected_words_ids }}">
-            <input type="hidden" name="topic_id" value="{{ topic_id }}">
-            <input type="hidden" name="difficulty" value="{{ difficulty }}">
+            <h2>{{ word.word }}</h2>
+            <p>Meaning : </p>
+            <p>{{ word.definition }}</p>
+            <p>Example Sentences : </p>
+            <p>
+            {% for sentence in word.sentences.all %}
+                {{ sentence.sentence }} - {{ sentence.definition }}
+            {% endfor %}
+            </p>
+            <br>
+            <br>
         {% endfor %}
-        <button type="submit">문제 풀기</button>
-    </form>
+    </div>
+    <div>
+        <br>
+        <br>
+        <br>
+        <br>
+        <!-- 문제 풀기 폼 -->
+        <form method="POST" action="{% url 'words:quiz' %}">
+            {% csrf_token %}
+            {% for word in selected_words %}
+                <input type="hidden" name="selected_words" value="{{ selected_words_ids }}">
+                <input type="hidden" name="topic_id" value="{{ topic_id }}">
+                <input type="hidden" name="difficulty" value="{{ difficulty }}">
+            {% endfor %}
+            <button type="submit">문제 풀기</button>
+        </form>
+    </div>
+</div>
 {% endblock %}

@@ -1,36 +1,25 @@
-{% extends 'base_01.html' %}
-
-{% block head %}
-<style>
-    #text {
-        width: 400px;
-        height: 700px;
-        float: left;
-    }
-    #section {
-        width: 1100px;
-        float: left;
-      }
-    
-</style>
-{% endblock %}
+{% extends 'voca_base.html' %}
 
 {% block base_content %}
+<div class="ma">
     <h2>퀴즈 풀기</h2>
+</div>
+<div class="box-container">
+    <div class="ma">
         <form method="POST" action="{% url 'words:quiz_results' %}">
             {% csrf_token %}
-            <div id="section">
-                {% for word in words %}
-                    <label>{{ word.definition|linebreaksbr }}</label>
-                    <br>
-                    <input type="text" name="answers_{{ word.id }}" placeholder="type your answer">
-                    <br>
-                    <br>
-                    <br>
-                {% endfor %}
-            </div>
-            <div id="text">
-                <button type="submit">결과 확인</button>
-            </div>
-        </form> 
+            {% for word in words %}
+                <label>{{ word.definition|linebreaksbr }}</label>
+                <br>
+                <input type="text" name="answers_{{ word.id }}" placeholder="type your answer">
+                <br>
+                <br>
+                <br>
+            {% endfor %}
+    </div>
+    <div>
+        <button type="submit">결과 확인</button>
+    </div>
+    </form> 
+</div>
 {% endblock %}

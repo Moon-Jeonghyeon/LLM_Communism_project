@@ -1,47 +1,37 @@
-{% extends 'base_01.html' %}
-
-{% block head %}
-<style>
-    #text {
-        width: 400px;
-        height: 50px;
-        float: left;
-    }
-    #section {
-        width: 500px;
-        float: left;
-      }
-    
-</style>
-{% endblock %}
+{% extends 'voca_base.html' %}
 
 {% block base_content %}
+<div class="ma">
     <h2>퀴즈 결과</h2>
-    <p>정답 개수: {{ correct_count }}/{{ total_count }}</p>
-        
+</div>
+<div class="box-container">
+    <div class="ma">
         {% for result in results %}
             <div>
-            <div id="section">
-            <h5>{{ result.word.word }}</h5>
-            <p>({{ result.word.definition|linebreaksbr }})</p>
+                <h5>{{ result.word.word }}</h5>
+                <p>({{ result.word.definition|linebreaksbr }})</p>
             </div>
             <div>
-            정답 여부: {% if result.correct %}정답{% else %}오답{% endif %}<br>
-            내가 입력한 답: {{ result.user_answer }}<br>
-            원래 정답: {{ result.word.word }}
-            </div>
-            <br>
-            <br>
-            <br>
-            <br>
-            <br>
-            <br>
+                정답 여부: {% if result.correct %}정답{% else %}오답{% endif %}
+                <br>
+                내가 입력한 답: {{ result.user_answer }}
+                <br>
+                원래 정답: {{ result.word.word }}
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
             </div>
         {% endfor %}
+    </div>
+    <div>
         <p>정답 개수: {{ correct_count }}/{{ total_count }}</p>
-
     <!-- 단어장으로 이동하기 -->
-    <form method="GET" action="{% url 'words:vocabulary' %}">
-        <button type="submit">내 단어장으로 이동</button>
-    </form>
+        <form method="GET" action="{% url 'words:vocabulary' %}">
+            <button type="submit">내 단어장으로 이동</button>
+        </form>
+    </div>
+</div>
 {% endblock %}
