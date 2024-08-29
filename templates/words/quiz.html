@@ -16,7 +16,7 @@
 {% endblock %}
 
 {% block base_content %}
-    <h2>퀴즈 풀기</h2>
+    <h2>Quiz</h2>
         <form method="POST" action="{% url 'words:quiz_results' %}">
             {% csrf_token %}
             <div id="section">
@@ -30,7 +30,7 @@
                 {% endfor %}
             </div>
             <div id="text">
-                <button type="submit">결과 확인</button>
+                <button type="submit">Submit</button>
             </div>
         </form> 
 {% endblock %}

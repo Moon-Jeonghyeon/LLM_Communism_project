@@ -16,8 +16,8 @@
 {% endblock %}
 
 {% block base_content %}
-    <h2>퀴즈 결과</h2>
-    <p>정답 개수: {{ correct_count }}/{{ total_count }}</p>
+    <h2>Result</h2>
+    <p>Corrected: {{ correct_count }}/{{ total_count }}</p>
         
         {% for result in results %}
             <div>
@@ -26,9 +26,9 @@
             <p>({{ result.word.definition|linebreaksbr }})</p>
             </div>
             <div>
-            정답 여부: {% if result.correct %}정답{% else %}오답{% endif %}<br>
-            내가 입력한 답: {{ result.user_answer }}<br>
-            원래 정답: {{ result.word.word }}
+            Corrected: {% if result.correct %}정답{% else %}오답{% endif %}<br>
+            My Answer: {{ result.user_answer }}<br>
+            Answer: {{ result.word.word }}
             </div>
             <br>
             <br>
@@ -38,10 +38,10 @@
             <br>
             </div>
         {% endfor %}
-        <p>정답 개수: {{ correct_count }}/{{ total_count }}</p>
+        <p>Corrected: {{ correct_count }}/{{ total_count }}</p>
 
     <!-- 단어장으로 이동하기 -->
     <form method="GET" action="{% url 'words:vocabulary' %}">
-        <button type="submit">내 단어장으로 이동</button>
+        <button type="submit">Go to My Vocabulary List</button>
     </form>
 {% endblock %}

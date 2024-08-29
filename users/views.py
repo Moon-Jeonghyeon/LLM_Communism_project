@@ -80,22 +80,38 @@ def signup(request):
     return render(request, "users/signup.html", context)
 
 def memo(request):
-    memos = Memo.objects.all()
-    context = { "memos" : memos }
+    # 최근 작성된 글이 위로 오도록 내림차순 정렬
+    memos = Memo.objects.all().order_by('-created_at')
 
-    if request.method == "POST": # method가 post일때
+    # 수정할 메모를 가져옴
+    edit_memo_id = request.GET.get('edit_memo_id')
+    edit_memo = None
 
+    # 수정할 메모 아이디를 가져온 경우 덮어쓰기
+    if edit_memo_id:
+        edit_memo = get_object_or_404(Memo, id=edit_memo_id, user=request.user)
+
+    # POST 요청 시
+    if request.method == "POST":
         content = request.POST["content"]
+        memo_id = request.POST.get("memo_id")
 
-        memo = Memo.objects.create(
-            content=content,
-            user=request.user,
-        )
-        memo.save()
+        if memo_id:
+            # 기존 메모 수정
+            memo = get_object_or_404(Memo, id=memo_id, user=request.user)
+            memo.content = content
+            memo.save()
+        else:
+            # 새 메모 생성
+            memo = Memo.objects.create(content=content, user=request.user)
+            memo.save()
+        
         return redirect("/users/memo/")
-
-    else : # method가  post 가 아닐때
-        print("method get")
+    
+    context = {
+        "memos": memos,
+        "edit_memo": edit_memo,
+    }
 
     return render(request, "users/memo.html", context)
 
@@ -158,7 +174,7 @@ def profile_edit(request, field):
             email_regex = re.compile(r'^[a-zA-Z0-9+-_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$')
 
             if not email_regex.search(profile_user.email):
-                messages.warning(request, "이메일 형식에 맞지 않습니다.")
+                messages.warning(request, "Incorrect email address.")
                 return redirect("users:profile", user_id=profile_user.id)
             
 

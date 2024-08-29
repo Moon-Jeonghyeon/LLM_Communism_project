@@ -3,7 +3,7 @@
 {% block base_content %}
     <h1>Learn Words</h1>
     <h1>
-        <a href ="{% url 'words:category' %}">카테고리</a>
+        <a href ="{% url 'words:category' %}">Category</a>
     </h1>
 
     {% for word in selected_words %}
@@ -23,6 +23,6 @@
             <input type="hidden" name="topic_id" value="{{ topic_id }}">
             <input type="hidden" name="difficulty" value="{{ difficulty }}">
         {% endfor %}
-        <button type="submit">문제 풀기</button>
+        <button type="submit">Quiz</button>
     </form>
 {% endblock %}

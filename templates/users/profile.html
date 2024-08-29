@@ -33,13 +33,13 @@
         
         <div>
         {% if profile_user == request.user %}
-            <button onclick="document.getElementById('edit_image_form').style.display='block'">프로필 이미지 수정</button>
+            <button onclick="document.getElementById('edit_image_form').style.display='block'">Change Profile Image</button>
 
         <!-- 프로필 이미지 수정 폼 -->
             <form method="POST" id="edit_image_form" action="{% url 'users:profile_edit' 'profile_image' %}" enctype="multipart/form-data" style="display:none;">
                 {% csrf_token %}
                 <input type="file" name="profile_image">
-                <button type="submit">저장</button>
+                <button type="submit">Save</button>
             </form>
         {% endif %}
         </div>
@@ -48,29 +48,29 @@
         <div>
             <br>
             <br>
-            <h2>이름 : {{ profile_user.name }} </h2>
+            <h2>Name : {{ profile_user.name }} </h2>
             {% if profile_user == request.user %}
-                <button onclick="document.getElementById('edit_nickname_form').style.display='block'">닉네임 수정</button>
+                <button onclick="document.getElementById('edit_nickname_form').style.display='block'">Change Name</button>
 
                 <!-- 닉네임 수정 폼 -->
                 <form method="POST" id="edit_nickname_form" action="{% url 'users:profile_edit' 'name' %}" style="display:none;">
                     {% csrf_token %}
                     <input type="text" name="name" value="{{ profile_user.name }}">
-                    <button type="submit">저장</button>
+                    <button type="submit">Save</button>
                 </form>
             {% endif %}
         </div>
         
         <br>
         <div>
-        <h3> 이메일 : {{ profile_user.email }}</h3>
+        <h3> Email-address : {{ profile_user.email }}</h3>
             {% if profile_user == request.user %}
-                <button  id="email_btn" onclick="document.getElementById('edit_email_form').style.display='block'">이메일 수정</button>
+                <button  id="email_btn" onclick="document.getElementById('edit_email_form').style.display='block'">Change Email</button>
 
                 <form method="POST" id="edit_email_form" action="{% url 'users:profile_edit' 'email' %}" style="display:none;">33
                     {% csrf_token %}
                     <input type="text" name="email" value="{{ profile_user.email }}">
-                    <button type="submit">저장</button>
+                    <button type="submit">Save</button>
                 </form>
             {% endif %}
         <!-- message는 이메일 형식에 맞지 않습니다. -->

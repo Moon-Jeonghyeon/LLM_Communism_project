@@ -3,11 +3,11 @@
 {% block base_content %}
 <div class="box-container">
     <div class="ma">
-        <h2>{{ request.user.username }}의 단어장</h2>
-        <a href="{% url 'words:vocabulary' %}">뒤로 가기</a>
+        <h2>{{ request.user.username }}'s Vocabulary List</h2>
+        <a href="{% url 'words:vocabulary' %}">Back to List</a>
         <!-- 현재 선택된 필터를 보여줍니다 -->
         <div style="background-color: gray;">
-            <p>선택 주제: 
+            <p>Selected topic: 
                 {% if topic_id %}
                     {% for topic in topics %}
                         {% if topic.id %}
@@ -15,10 +15,10 @@
                         {% endif %}
                     {% endfor %}
                 {% else %}
-                    모든 주제
+                    All
                 {% endif %}
             </p>
-            <p>선택 난이도: 
+            <p>Selected level: 
                 {% if difficulty %}
                     {% for key, value in difficulty_choices %}
                         {% if key == difficulty %}
@@ -26,7 +26,7 @@
                         {% endif %}
                     {% endfor %}
                 {% else %}
-                    모든 난이도
+                    All
                 {% endif %}
             </p>
         </div>
@@ -36,28 +36,28 @@
             <input type="hidden" name="topic_id" value="{{ topic_id }}">
             <input type="hidden" name="difficulty" value="{{ difficulty }}">
 
-            <label for="order_by">정렬 기준:</label>
+            <label for="order_by">sort by:</label>
             <select name="order_by">
-                <option value="word__word" {% if order_by == "word__word" %}selected{% endif %}>단어</option>
+                <option value="word__word" {% if order_by == "word__word" %}selected{% endif %}>Spelling</option>
             </select>
 
-            <label for="direction">정렬 방향:</label>
+            <label for="direction">order by:</label>
             <select name="direction">
-                <option value="asc" {% if direction == "asc" %}selected{% endif %}>오름차순</option>
-                <option value="desc" {% if direction == "desc" %}selected{% endif %}>내림차순</option>
+                <option value="asc" {% if direction == "asc" %}selected{% endif %}>ascending</option>
+                <option value="desc" {% if direction == "desc" %}selected{% endif %}>descending</option>
             </select>
 
-            <button type="submit" class="btn btn-primary">정렬</button>
+            <button type="submit" class="btn btn-primary">Arrange</button>
         </form>
 
         <!-- 필터링된 단어 목록 -->
         <div>
             {% for vocab in vocabulary %}
-                <p class="voca">단어 : {{ vocab.word.word }}</p>
-                <p class="voca01">뜻&nbsp&nbsp&nbsp&nbsp: {{ vocab.word.definition }}</p>
+                <p class="voca">Word : {{ vocab.word.word }}</p>
+                <p class="voca01">Meaning&nbsp&nbsp&nbsp&nbsp: {{ vocab.word.definition }}</p>
 
                 <!-- 삭제 버튼 (모달 트리거) -->
-                <button class="btn btn-danger btn-sm" data-toggle="modal" data-target="#delete_modal_{{ vocab.id }}">삭제</button>
+                <button class="btn btn-danger btn-sm" data-toggle="modal" data-target="#delete_modal_{{ vocab.id }}">Delete</button>
                 <br>
                 <br>
 
@@ -66,19 +66,19 @@
                     <div class="modal-dialog" role="document">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title">삭제 경고</h5>
+                                <h5 class="modal-title">Warning</h5>
                                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                     <span aria-hidden="true">&times;</span>
                                 </button>
                             </div>
                             <div class="modal-body">
-                                <p>이 단어를 삭제하시겠습니까?</p>
+                                <p>Are you sure you want to delete this Word? Click continue to delete the word. If not, click cancel.</p>
                             </div>
                             <div class="modal-footer">
                                 <form id="deleteForm_{{ vocab.id }}" method="POST" action="{% url 'words:delete_vocab' vocab.id %}?{% if topic_id %}topic_id={{ topic_id }}{% endif %}{% if difficulty %}&difficulty={{ difficulty }}{% endif %}">
                                     {% csrf_token %}
-                                    <button type="submit" class="btn btn-danger">삭제하기</button>
-                                    <button type="button" class="btn btn-light" data-dismiss="modal">취소하기</button>
+                                    <button type="submit" class="btn btn-danger">Continue</button>
+                                    <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
                                 </form>
                             </div>
                         </div>
