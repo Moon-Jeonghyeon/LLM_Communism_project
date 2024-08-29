@@ -183,7 +183,6 @@ def category(request):
         topic_data[obj.main_topic].append(obj)
     # topic_data 를 defaultdict 가 아닌 일반 dict 로 묶어준다.
     topic_data = dict(topic_data)
-    print(topic_data)
 
     context = {
         "topic_data": topic_data,
@@ -222,7 +221,7 @@ def learn_words(request):
     selected_words = sample(words_with_sentences, min(len(words_with_sentences), 10))
 
     # template에 아이디 자리인 value 값에 넘겨주기 위해 만든 변수
-    selected_words_ids = ",".join([str(word.id) for word in words])
+    selected_words_ids = ",".join([str(word.id) for word in selected_words])
 
     context = {
         "selected_words": selected_words,
@@ -271,6 +270,7 @@ def quiz(request):
     # 쿼리스트링에서 topic_id와 difficulty 값 가져오기
     topic_id = request.GET.get("topic_id")
     difficulty = request.GET.get("difficulty")
+    selected_words = request.GET.get("selected_words")
 
     # POST 방식 요청 시
     if request.method == "POST":
@@ -341,6 +341,22 @@ def vocabulary(request):
     # 쿼리스트링에서 정렬 기준과 방향 가져오기
     order_by = request.GET.get("order_by", "word__word")
     direction = request.GET.get("direction", "asc")
+    memos = Memo.objects.all()
+    context = { "memos" : memos }
+
+    if request.method == "POST": # method가 post일때
+
+        content = request.POST["content"]
+
+        memo = Memo.objects.create(
+            content=content,
+            user=request.user,
+        )
+        memo.save()
+        return redirect("/words/vocabulary")
+
+    else : # method가  post 가 아닐때
+        print("method get")
 
     # 주제별 정렬
     if order_by == "word__topic__main_topic":
@@ -373,6 +389,7 @@ def vocabulary(request):
     }
 
     return render(request, "words/vocabulary.html", context)
+
 
 def delete_vocab(request, vocab_id):
     vocab = get_object_or_404(Vocabulary, id=vocab_id, user=request.user)

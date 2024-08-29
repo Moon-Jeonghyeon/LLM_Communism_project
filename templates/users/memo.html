@@ -1,41 +1,70 @@
-{% include 'nav.html' %}
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Document</title>
-    </head>
-    <body>
-        <h1>
-            MEMO
-        </h1>
-        <form method="POST" enctype="multipart/form-data">
-            {% csrf_token %}
-            <div>
-                <label>내용</label>
-                <textarea name="content" cols="50" rows="10"></textarea>
-            </div>
-            <button type="submit" class="btn btn-primary">작성</button>
-        </form>
-        <!-- 메모장 기능 구현 -->
-        {% for memo in memos %}
-            <p>내용: {{ memo.content }} 작성일: {{ memo.created_at }} 수정일:{{ memo.updated_at }}</p>
-            <form method="POST" action="{% url 'users:delete_memo' memo.id %}">
-                {% csrf_token %}
-                <button type="submit">삭제</button>
-            </form>
+{% extends 'base_01.html' %}
 
-            <!-- 리스트 수정 -->
-            <button onclick="document.getElementById('edit_form_{{ memo.id }}').style.display='block'">수정</button>
+{% block head %}
+    <style>
+        .item:nth-child(even) {
+        background : lightblue;
+        }
 
-            <!-- 수정 폼 -->
-            <form method="POST" id="edit_form_{{ memo.id }}" action="{% url 'users:edit_memo' memo.id %}" style="display:none">
+        .item:nth-child(odd) {
+        background : tomato;
+        }
+
+        .box-container {
+        display: flex;
+        }
+        
+        .ma {
+            margin-left: 100px;
+            margin-right: 500px;
+        }
+
+        .ma_01 {
+            margin-right: 100px;
+        }
+
+    </style>
+{% endblock %}
+
+{% block base_content %}
+    
+    <div class="box-container">
+        <div class="ma">
+            <h1>
+                MEMO
+            </h1>
+            <form method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
-                <input type="text" name="content" value="{{ memo.content }}">
-                <button type="submit">확인</button>
+                <textarea name="content" cols="100" rows="15"></textarea>
+                <br>
+                <button type="submit" class="btn btn-primary">작성</button>
             </form>
-            <br>
-        {% endfor %}
-    </body>
-    </html>
+        </div>
+        <br>
+        <div class="ma_01" >
+            <!-- 메모장 기능 구현 -->
+            {% for memo in memos %}
+                <p class="item">내용: {{ memo.content|linebreaksbr }}</p>
+                <p>작성일: {{ memo.created_at }}</p>
+                <p>수정일:{{ memo.updated_at }}</p>
+                <form method="POST" action="{% url 'users:delete_memo' memo.id %}">
+                    {% csrf_token %}
+                    <button type="submit">삭제</button>
+                </form>
+            
+                <!-- 리스트 수정 -->
+                <button onclick="document.getElementById('edit_form_{{ memo.id }}').style.display='block'">수정</button>
+
+                <!-- 수정 폼 -->
+                <form method="POST" id="edit_form_{{ memo.id }}" action="{% url 'users:edit_memo' memo.id %}" style="display:none">
+                    {% csrf_token %}
+                    <input type="text" name="content" value="{{ memo.content }}">
+                    <button type="submit">확인</button>
+                </form>
+                <br>
+                <br>
+                <br>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

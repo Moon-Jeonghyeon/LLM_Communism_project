@@ -1,65 +1,60 @@
-<!DOCTYPE html>
-<html lang="ko">
-    <head>
-        <title>English Learner</title>
-    </head>
-    <body>
-        {% include 'nav.html' %}
-        <h1>주제 선택</h1>
-        {% for main_topic, sub_topics in topic_data.items %}
-            <h2>{{ main_topic }}</h2>
-            {% for sub_topic in sub_topics %}
-                <h5>{{ sub_topic }}</h5>
+{% extends 'base_01.html' %}
 
-                <!-- 학습하기 -->
-                <form method="GET" action="{% url 'words:learn_words' %}">
-                    <label for="difficulty">난이도 선택:</label>
-                    <select name="difficulty">
-                        <option value="">모든 난이도</option>
-                        {% for key, value in difficulty_choices %}
-                            <option value="{{ key }}">{{ value }}</option>
-                        {% endfor %}
-                    </select>
-                    <input type="hidden" name="topic_id" value="{{ sub_topic.id }}">
-                    <button type="submit">학습하기</button>
-                </form>
-                
-                <!-- 문제 풀기 -->
-                <form method="GET" action="{% url 'words:quiz' %}">
-                    <label for="difficulty">난이도 선택:</label>
-                    <select name="difficulty">
-                        <option value="">모든 난이도</option> 
-                        {% for key, value in difficulty_choices %}
-                            <option value="{{ key }}">{{ value }}</option>
-                        {% endfor %}
-                    </select>
-                    <input type="hidden" name="topic_id" value="{{ sub_topic.id }}">
-                    <button type="submit">문제풀기</button>
-                </form>
-            {% endfor %}
+{% block base_content %}
+    <h1>주제 선택</h1>
+    {% for main_topic, sub_topics in topic_data.items %}
+        <h2>{{ main_topic }}</h2>
+        {% for sub_topic in sub_topics %}
+            <h5>{{ sub_topic }}</h5>
+
+            <!-- 학습하기 -->
+            <form method="GET" action="{% url 'words:learn_words' %}">
+                <label for="difficulty">난이도 선택:</label>
+                <select name="difficulty">
+                    <option value="">모든 난이도</option>
+                    {% for key, value in difficulty_choices %}
+                        <option value="{{ key }}">{{ value }}</option>
+                    {% endfor %}
+                </select>
+                <input type="hidden" name="topic_id" value="{{ sub_topic.id }}">
+                <button type="submit">학습하기</button>
+            </form>
+            
+            <!-- 문제 풀기 -->
+            <form method="GET" action="{% url 'words:quiz' %}">
+                <label for="difficulty">난이도 선택:</label>
+                <select name="difficulty">
+                    <option value="">모든 난이도</option> 
+                    {% for key, value in difficulty_choices %}
+                        <option value="{{ key }}">{{ value }}</option>
+                    {% endfor %}
+                </select>
+                <input type="hidden" name="topic_id" value="{{ sub_topic.id }}">
+                <button type="submit">문제풀기</button>
+            </form>
         {% endfor %}
-        
-        <h1>난이도별 학습</h1>
-        <form method="GET" action="{% url 'words:learn_words' %}">
-            <label for="difficulty">난이도 선택:</label>
-            <select name="difficulty">
-                <option value="">모든 난이도</option>
-                {% for key, value in difficulty_choices %}
-                    <option value="{{ key }}">{{ value }}</option>
-                {% endfor %}
-            </select>
-            <button type="submit">학습하기</button>
-        </form>
+    {% endfor %}
     
-        <form method="GET" action="{% url 'words:quiz' %}">
-            <label for="difficulty">난이도 선택:</label>
-            <select name="difficulty">
-                <option value="">모든 난이도</option>
-                {% for key, value in difficulty_choices %}
-                    <option value="{{ key }}">{{ value }}</option>
-                {% endfor %}
-            </select>
-            <button type="submit">문제풀기</button>
-        </form>    
-    </body>
-</html>
+    <h1>난이도별 학습</h1>
+    <form method="GET" action="{% url 'words:learn_words' %}">
+        <label for="difficulty">난이도 선택:</label>
+        <select name="difficulty">
+            <option value="">모든 난이도</option>
+            {% for key, value in difficulty_choices %}
+                <option value="{{ key }}">{{ value }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">학습하기</button>
+    </form>
+
+    <form method="GET" action="{% url 'words:quiz' %}">
+        <label for="difficulty">난이도 선택:</label>
+        <select name="difficulty">
+            <option value="">모든 난이도</option>
+            {% for key, value in difficulty_choices %}
+                <option value="{{ key }}">{{ value }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">문제풀기</button>
+    </form>    
+{% endblock %}

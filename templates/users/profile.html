@@ -1,16 +1,14 @@
-{% include 'nav.html' %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
+{% extends 'base_01.html' %}
+
+{% block base_content %}
+
     <div>
         <h1>profile</h1>
-        <img src = "{{ user.profile_image.url }}" alt=""  width="300">
+        <div>
+            <img src = "{{ user.profile_image.url }}" alt=""  width="400">
+        </div>
         
+        <div>
         {% if profile_user == request.user %}
             <button onclick="document.getElementById('edit_image_form').style.display='block'">프로필 이미지 수정</button>
 
@@ -21,9 +19,9 @@
                 <button type="submit">저장</button>
             </form>
         {% endif %}
+        </div>
     </div>
-
-
+    <br>
     <div>
         <h2>이름 : {{ profile_user.name }} </h2>
         {% if profile_user == request.user %}
@@ -37,19 +35,25 @@
             </form>
         {% endif %}
     </div>
+    
+    <br>
+    <div>
     <h3> 이메일 : {{ profile_user.email }}</h3>
-    {% if profile_user == request.user %}
-        <button onclick="document.getElementById('edit_email_form').style.display='block'">이메일 수정</button>
+        {% if profile_user == request.user %}
+            <button  id="email_btn" onclick="document.getElementById('edit_email_form').style.display='block'">이메일 수정</button>
 
-        <form method="POST" id="edit_email_form" action="{% url 'users:profile_edit' 'email' %}" style="display:none;">
-            {% csrf_token %}
-            <input type="text" name="email" value="{{ profile_user.email }}">
-            <button type="submit">저장</button>
-        </form>
-    {% endif %}
+            <form method="POST" id="edit_email_form" action="{% url 'users:profile_edit' 'email' %}" style="display:none;">33
+                {% csrf_token %}
+                <input type="text" name="email" value="{{ profile_user.email }}">
+                <button type="submit">저장</button>
+            </form>
+        {% endif %}
+    <!-- message는 이메일 형식에 맞지 않습니다. -->
     {% for message in messages %}
         {{ message.tag }}
         {{ message }}
     {% endfor %}
-</body>
-</html>
+    
+    </div>
+    
+{% endblock %}

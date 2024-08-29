@@ -1,13 +1,38 @@
-<!DOCTYPE html>
-<html lang="ko">
-    <head>
-        <title>English Learner</title>
-    </head>
-    <body>
-        {% include 'nav.html' %}
-        <h2>{{ request.user.username }}의 단어장</h2>
+{% extends 'base_01.html' %}
 
-        <!-- 정렬 옵션 -->
+{% block head %}
+    <style>
+        .voca{
+        background : hwb(195 1% 3%);
+        }
+
+        .voca01{
+        background : #ccebe8;
+        }
+
+        .box-container {
+        display: flex;
+        }
+
+        .ma {
+            width: 500px;
+            margin-left: 50px;
+            margin-right: 500px;
+        }
+
+        .ma_01 {
+            margin-right: 100px;
+        }
+
+
+    </style>
+{% endblock %}
+
+{% block base_content %}
+    <h2>{{ request.user.username }}의 단어장</h2>
+
+    <!-- 정렬 옵션 -->
+    <div>
         <form method="GET" action="">
             <label for="order_by">정렬 기준:</label>
             <select name="order_by">
@@ -24,16 +49,32 @@
 
             <button type="submit">정렬</button>
         </form>
+    </div>
+    
+    <div class="box-container">
+        <div class="ma">
+            <!-- 단어 목록 -->
+            {% for vocab in vocabulary %}
+                <p class="voca">단어 : {{ vocab.word.word }}</p>
+                <p class="voca01">뜻&nbsp&nbsp&nbsp&nbsp: {{ vocab.word.definition }}</p>
 
-        <!-- 단어 목록 -->
-        {% for vocab in vocabulary %}
-            <p>{{ vocab.word.word }} - {{ vocab.word.definition }}</p>
-
-            <!-- 단어 삭제 기능 -->
-            <form method="POST" action="{% url 'words:delete_vocab' vocab.id %}">
+                <!-- 단어 삭제 기능 -->
+                <form method="POST" action="{% url 'words:delete_vocab' vocab.id %}">
+                    {% csrf_token %}
+                    <button type="submit">삭제</button>
+                </form>
+            {% endfor %}
+        </div>
+        <div class="ma_01">
+            <form method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
-                <button type="submit">삭제</button>
+                <div>
+                    <label>메 모 장</label>
+                    <textarea name="content" cols="50" rows="40"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">작성</button>
             </form>
-        {% endfor %}
-    </body>
-</html>
+        </div>
+    </div>
+    
+{% endblock %}

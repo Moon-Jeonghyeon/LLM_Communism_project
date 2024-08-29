@@ -1,17 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <title>English Learner</title>
-    </head>
-    <body>
-        <div id="signup">
-            <form method="POST" enctype="multipart/form-data">
-                <h1>English Learner</h1>
-                {% csrf_token %}
-                {{ form.as_p }}
-                <button type="submit" class="btn btn-signup">회원가입</button>
-                <a href="{% url 'users:login' %}">로그인 페이지로 이동</a>
-            </form>
-        </div>
-    </body>
-</html>
+{% extends 'base.html' %}
+
+{% block base_content %}
+    <div id="signup">
+        <form method="POST" enctype="multipart/form-data">
+            <h1>English Learner</h1>
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-signup">회원가입</button>
+            <a href="{% url 'users:login' %}">로그인 페이지로 이동</a>
+        </form>
+    </div>
+{% endblock %}
+
+
+id="contactForm

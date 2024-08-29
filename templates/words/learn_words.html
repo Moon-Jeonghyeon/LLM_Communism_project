@@ -1,28 +1,28 @@
-<!DOCTYPE html>
-<html lang="ko">
-    <head>
-        <title>English Learner</title>
-    </head>
-    <body>
-        {% include 'nav.html' %}
-        <h1>Learn Words</h1>
+{% extends 'base_01.html' %}
 
-        {% for word in selected_words %}
-            <h2>{{ word.word }}</h2>
-            <p>Meaning: {{ word.definition }}</p>
-            <h3>Example Sentences:</h3>
-            {% for sentence in word.sentences.all %}
-                {{ sentence.sentence }} - {{ sentence.definition }}
-            {% endfor %}
+{% block base_content %}
+    <h1>Learn Words</h1>
+    <h1>
+        <a href ="{% url 'words:category' %}">카테고리</a>
+    </h1>
+
+    {% for word in selected_words %}
+        <h2>{{ word.word }}</h2>
+        <p>Meaning: {{ word.definition }}</p>
+        <h3>Example Sentences:</h3>
+        {% for sentence in word.sentences.all %}
+            {{ sentence.sentence }} - {{ sentence.definition }}
         {% endfor %}
+    {% endfor %}
 
-        <!-- 문제 풀기 폼 -->
-        <form method="POST" action="{% url 'words:quiz' %}">
-            {% csrf_token %}
-            {% for word in selected_words %}
-                <input type="hidden" name="selected_words" value="{{ selected_words_ids }}">
-            {% endfor %}
-            <button type="submit">문제 풀기</button>
-        </form>
-    </body>
-</html>
+    <!-- 문제 풀기 폼 -->
+    <form method="POST" action="{% url 'words:quiz' %}">
+        {% csrf_token %}
+        {% for word in selected_words %}
+            <input type="hidden" name="selected_words" value="{{ selected_words_ids }}">
+            <input type="hidden" name="topic_id" value="{{ topic_id }}">
+            <input type="hidden" name="difficulty" value="{{ difficulty }}">
+        {% endfor %}
+        <button type="submit">문제 풀기</button>
+    </form>
+{% endblock %}

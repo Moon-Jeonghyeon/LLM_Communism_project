@@ -1,22 +1,33 @@
-{% load static %}
+{% extends 'base.html' %}
+
+{% block head %}
 {% include 'nav.html' %}
-<link rel="stylesheet" href="{% static 'css/styles.css' %}"> 
-
-
-<!DOCTYPE html>
-
-<html lang="ko">
-    <body>
-        <h1>Main Page</h1>
-        <a href="{% url 'users:logout' %}">로그아웃</a>
-        <div>
-            <h1>
-                <a href ="{% url 'words:category' %}">카테고리</a>
-            </h1>
-            <h1>
-                <a href ="{% url 'words:vocabulary' %}">단어장</a>
-            </h1>
+    <header class="masthead bg-primary text-white text-center">
+        <div class="container d-flex align-items-center flex-column">
+            <!-- Masthead Avatar Image-->
+            <!-- Masthead Heading-->
+            <h1 class="masthead-heading text-uppercase mb-0">English Learner</h1>
+            <!-- Icon Divider-->
+            <div class="divider-custom divider-light">
+                <div class="divider-custom-line"></div>
+                <div class="divider-custom-icon"><i class="fas fa-star"></i></div>
+                <div class="divider-custom-line"></div>
+            </div>
+            <!-- Masthead Subheading-->
+            <p class="masthead-subheading font-weight-light mb-0">Graphic Artist - Web Designer - Illustrator</p>
         </div>
+    </header>
+{% endblock %}
 
-    </body>
-</html>
+{% block base_content %}
+
+<section class="dark">
+    <button class="button" onclick = "location.href = '/words/category/' ">카테고리</button> 
+</section>
+
+<section class="light">
+    <button class="button" onclick = "location.href = '/words/vocabulary/' ">단어장</button> 
+</section>
+    
+    
+{% endblock %}
