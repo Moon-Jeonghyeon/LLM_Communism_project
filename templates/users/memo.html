@@ -42,6 +42,7 @@
     <br>
     <div class="ma_01" >
         <!-- 메모장 기능 구현 -->
+         <div style="width: 500px">
         {% for memo in memos %}
             <p class="item">내용: {{ memo.content|linebreaksbr }}</p>
             <p>작성일: {{ memo.created_at }}</p>
@@ -66,6 +67,7 @@
             <br>
             <br>
         {% endfor %}
+        </div>
     </div>
 </div>        
         <!-- 삭제 모달 -->

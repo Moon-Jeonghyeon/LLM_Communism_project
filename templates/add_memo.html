@@ -1,0 +1,20 @@
+<div class="ma_01">
+    <div id="aside">
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+                <br>
+                <br>
+                <label>메 모 장</label>
+                <br>
+                <textarea name="content" cols="70" rows="20"></textarea>
+                <br>
+            <button type="submit" class="btn btn-primary">작성</button>
+        </form>
+    </div>
+</div>
+
+
+<!-- Bootstrap JavaScript and dependencies -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
