@@ -335,7 +335,7 @@ def quiz_results(request):
     
 def filtering_vocab(request):
     # 쿼리스트링에서 주제와 난이도 정보를 가져옴
-    topic_id = request.GET.get("topic_id")
+    main_topic = request.GET.get("topic_id")
     difficulty = request.GET.get("difficulty")
 
     # 정렬 기능 추가
@@ -349,8 +349,8 @@ def filtering_vocab(request):
     filtered_vocab = Vocabulary.objects.filter(user=request.user).select_related("word")
 
     # 주제별 단어인 경우
-    if topic_id:
-        filtered_vocab = filtered_vocab.filter(word__topic__id=topic_id)
+    if main_topic:
+        filtered_vocab = filtered_vocab.filter(word__topic__main_topic=main_topic)
     
     # 난이도별 단어인 경우
     if difficulty:
@@ -362,9 +362,12 @@ def filtering_vocab(request):
     else:
         filtered_vocab = filtered_vocab.order_by(order_by)
 
+    # 중복된 main_topic을 제거하고 가져옴
+    topics = Topic.objects.values("main_topic").distinct()
+
     context = {
         "vocabulary": filtered_vocab,
-        "topics": Topic.objects.all(),
+        "topics": topics,
         "difficulty_choices": (
             ("A1", "입문"),
             ("A2", "초급"),
@@ -373,7 +376,7 @@ def filtering_vocab(request):
             ("C1", "상급"),
             ("C2", "고급"),
         ),
-        "topic_id": topic_id,
+        "topic_id": main_topic,
         "difficulty": difficulty,
         "order_by": order_by,
         "direction": direction,
@@ -399,8 +402,8 @@ def vocabulary(request):
     # 요청 사용자의 단어 리스트를 반환함
     user_vocabulary = Vocabulary.objects.filter(user=request.user).select_related("word")
 
-    # 모든 주제를 반환함
-    topics = Topic.objects.all()
+    # 중복된 main_topic을 제거하고 가져옴
+    topics = Topic.objects.values("main_topic").distinct()
 
     context = {
         "vocabulary": user_vocabulary,

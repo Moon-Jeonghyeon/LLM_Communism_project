@@ -9,11 +9,7 @@
         <div style="background-color: gray;">
             <p>Selected topic: 
                 {% if topic_id %}
-                    {% for topic in topics %}
-                        {% if topic.id %}
-                            {{ topic.main_topic }}
-                        {% endif %}
-                    {% endfor %}
+                    {{ topic_id }}
                 {% else %}
                     All
                 {% endif %}
