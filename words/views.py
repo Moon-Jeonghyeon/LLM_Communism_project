@@ -338,6 +338,13 @@ def filtering_vocab(request):
     topic_id = request.GET.get("topic_id")
     difficulty = request.GET.get("difficulty")
 
+    # 정렬 기능 추가
+    # 기본값은 단어 철자 오름차순
+    order_by = request.GET.get("order_by", "word__word")
+
+    # 기본 정렬 방향 오름차순
+    direction = request.GET.get("direction", "asc")
+
     # 요청 사용자의 단어장을 반환함
     filtered_vocab = Vocabulary.objects.filter(user=request.user).select_related("word")
 
@@ -348,6 +355,12 @@ def filtering_vocab(request):
     # 난이도별 단어인 경우
     if difficulty:
         filtered_vocab = filtered_vocab.filter(word__difficulty=difficulty)
+
+    # 정렬 설정
+    if direction == "desc":
+        filtered_vocab = filtered_vocab.order_by("-" +  order_by)
+    else:
+        filtered_vocab = filtered_vocab.order_by(order_by)
 
     context = {
         "vocabulary": filtered_vocab,
@@ -362,6 +375,8 @@ def filtering_vocab(request):
         ),
         "topic_id": topic_id,
         "difficulty": difficulty,
+        "order_by": order_by,
+        "direction": direction,
     }
     return render(request, "words/filtered_vocab.html", context)
 

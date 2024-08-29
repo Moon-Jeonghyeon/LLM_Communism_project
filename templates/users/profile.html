@@ -24,7 +24,11 @@
     <div class="ma">
         <h1>profile</h1>
         <div>
-            <img src = "{{ user.profile_image.url }}" alt=""  width="600" height="400">
+            {% if user.profile_image %}
+                <img src="{{ user.profile_image.url }}" width="600" height="400">
+            {% else %}
+                <img src="https://wallpapercave.com/wp/wp13396427.jpg" width="600" height="400">
+            {% endif %}
         </div>
         
         <div>

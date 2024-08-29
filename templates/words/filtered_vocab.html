@@ -8,6 +8,8 @@
     <body>
         {% include 'nav.html' %}
         <h2>{{ request.user.username }}의 단어장</h2>
+        
+        <a href="{% url 'words:vocabulary' %}">뒤로 가기</a>
 
         <!-- 현재 선택된 필터를 보여줍니다 -->
         <div>
@@ -34,6 +36,25 @@
                 {% endif %}
             </p>
         </div>
+        
+        <!-- 정렬 옵션 -->
+        <form method="GET" action="{% url 'words:filtered_vocab' %}">
+            <input type="hidden" name="topic_id" value="{{ topic_id }}">
+            <input type="hidden" name="difficulty" value="{{ difficulty }}">
+
+            <label for="order_by">정렬 기준:</label>
+            <select name="order_by">
+                <option value="word__word" {% if order_by == "word__word" %}selected{% endif %}>단어</option>
+            </select>
+
+            <label for="direction">정렬 방향:</label>
+            <select name="direction">
+                <option value="asc" {% if direction == "asc" %}selected{% endif %}>오름차순</option>
+                <option value="desc" {% if direction == "desc" %}selected{% endif %}>내림차순</option>
+            </select>
+
+            <button type="submit" class="btn btn-primary">정렬</button>
+        </form>
 
         <!-- 필터링된 단어 목록 -->
         {% for vocab in vocabulary %}
