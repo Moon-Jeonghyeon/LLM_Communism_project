@@ -438,9 +438,10 @@ def delete_vocab(request, vocab_id):
                 url += f"topic_id={topic_id}"
             if difficulty:
                 url += f"&difficulty={difficulty}"
+
         else:
             # 쿼리스트링이 없으면 전체 단어장으로 리다이렉트
-            url = "/words/vocabulary/"
+            url = "/words/filtered_vocab/?topic_id=&difficulty="
 
         return HttpResponseRedirect(url)
     
