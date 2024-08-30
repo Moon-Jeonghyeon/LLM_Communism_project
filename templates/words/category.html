@@ -13,7 +13,7 @@
                     <div style="text-indent : 20px">
                         <h5>{{ sub_topic }}</h5>
                         <form method="GET" action="{% url 'words:learn_words' %}">
-                            <label for="difficulty">Level:</label>
+                            <label for="difficulty">Level : </label>
                             <select name="difficulty">
                                 <option value="">Random</option>
                                 {% for key, value in difficulty_choices %}
@@ -44,9 +44,14 @@
         </div>
         <div>
             <h1>Select Level</h1>
-
-
-
+            <form method="GET" action="{% url 'words:learn_words' %}">
+                <label for="difficulty">Level : </label>
+                <select name="difficulty">
+                    <option value="">Random</option>
+                    {% for key, value in difficulty_choices %}
+                        <option value="{{ key }}">{{ value }}</option>
+                    {% endfor %}
+                </select>
                 <button type="submit">>New Learning</button>
             </form>
 
